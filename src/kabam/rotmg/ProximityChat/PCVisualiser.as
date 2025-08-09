@@ -217,7 +217,7 @@ public class PCVisualiser extends Sprite
         }
 
         // Update peak bar (thin line at peak level)
-        var peakG:Graphics = peakBar.graphics;
+        /*var peakG:Graphics = peakBar.graphics;
         peakG.clear();
 
         if (_peakLevel > 0.05 && peakBarIndex < _barCount && peakBarIndex >= activeBars)
@@ -227,6 +227,8 @@ public class PCVisualiser extends Sprite
             peakG.drawRect(peakX, 0, _barWidth, 2); // Thin 2px line
             peakG.endFill();
         }
+        */
+
     }
 
     // Public methods for audio input

@@ -42,6 +42,8 @@ import flash.utils.setTimeout;
 
 import kabam.lib.loopedprocs.LoopedCallback;
 import kabam.lib.loopedprocs.LoopedProcess;
+//777592
+import kabam.rotmg.ProximityChat.VoiceChatService;
 import kabam.rotmg.constants.GeneralConstants;
 import kabam.rotmg.core.model.MapModel;
 import kabam.rotmg.core.model.PlayerModel;
@@ -54,7 +56,7 @@ import kabam.rotmg.stage3D.Renderer;
 import kabam.rotmg.ui.UIUtils;
 import kabam.rotmg.ui.view.BossHealthBar;
 import kabam.rotmg.ui.view.HUDView;
-import kabam.rotmg.ProximityChat.PCMask;
+//777592
 import kabam.rotmg.ProximityChat.PCManager;
 
 import org.osflash.signals.Signal;
@@ -91,7 +93,7 @@ public class GameSprite extends Sprite {
    public var arenaMenu:ArenaMenu;
    public var scaledLayer:Sprite;
    public var forceScaledLayer:Sprite;
-   private var proximityMask:PCMask;
+   //777592
    private var proximityChatManager:PCManager;
 
    public function GameSprite(server:Server, gameId:int, createCharacter:Boolean, charId:int, keyTime:int, key:ByteArray, model:PlayerModel, mapJSON:String) {
@@ -109,7 +111,7 @@ public class GameSprite extends Sprite {
       this.textBox_.addEventListener(MouseEvent.MOUSE_UP, this.onChatUp);
       this.idleWatcher_ = new IdleWatcher();
    }
-
+//777592
    private function initializePCUI():void {
       // Create proximity chat manager
       proximityChatManager = new PCManager(
@@ -539,7 +541,11 @@ public class GameSprite extends Sprite {
          stage.addEventListener(Event.RESIZE, this.onScreenResize);
          stage.dispatchEvent(new Event(Event.RESIZE));
          Parameters.DamageCounter = [];
+         //777592
          initializePCUI();
+         //777592
+         VoiceChatService.getInstance().initialize();
+
       }
    }
 
@@ -569,6 +575,7 @@ public class GameSprite extends Sprite {
             removeChild(this.gameStatistics_);
          }
          dispatchEvent(new Event(Event.COMPLETE));
+//777592
          if (proximityChatManager)
          {
             // Remove event listeners
@@ -588,6 +595,10 @@ public class GameSprite extends Sprite {
             proximityChatManager = null;
          }
       }
+//777592
+         VoiceChatService.getInstance().dispose();
+
+
    }
 
    private function onEnterFrame(event:Event) : void

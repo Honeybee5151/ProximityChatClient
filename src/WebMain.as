@@ -9,7 +9,12 @@ import flash.display.Stage;
 import flash.display.StageAlign;
 import flash.display.StageScaleMode;
 import flash.events.Event;
+import flash.events.UncaughtErrorEvent;
+import flash.external.ExternalInterface;
+import flash.system.Capabilities;
+
 import kabam.lib.net.NetConfig;
+import kabam.rotmg.ProximityChat.VoiceChatService;
 import kabam.rotmg.account.AccountConfig;
 import kabam.rotmg.appengine.AppEngineConfig;
 import kabam.rotmg.application.ApplicationConfig;
@@ -58,6 +63,24 @@ public class WebMain extends Sprite {
         else {
             addEventListener(Event.ADDED_TO_STAGE, this.onAddedToStage);
         }
+        //777592
+        if (ExternalInterface.available) {
+            try {
+                // Register JavaScript function to call when page closes
+                ExternalInterface.addCallback("handleAppClose", onApplicationExit);
+
+                // Add JavaScript to detect page unload
+                ExternalInterface.call("eval",
+                        "window.addEventListener('beforeunload', function() { " +
+                        "if (window.handleAppClose) window.handleAppClose(); " +
+                        "});"
+                );
+            } catch (e:Error) {
+                trace("Could not setup close detection:", e.message);
+            }
+        }
+
+        this.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onUncaughtError);
     }
 
     protected var context:IContext;
@@ -137,6 +160,19 @@ public class WebMain extends Sprite {
     private function onAddedToStage(event:Event):void {
         removeEventListener(Event.ADDED_TO_STAGE, this.onAddedToStage);
         this.setup();
+    }
+    //777592
+    private function onApplicationExit():void {
+        VoiceChatService.getInstance().dispose(); // NOW kill the C# process
+    }
+    private function onUncaughtError(e:UncaughtErrorEvent):void {
+        var error:Error = e.error as Error;
+        if (error) {
+            trace("UNCAUGHT ERROR:", error.message);
+            trace("STACK TRACE:", error.getStackTrace());
+        }
+        // Don't prevent the error - let it show normally for debugging
+        // e.preventDefault();
     }
 }
 }

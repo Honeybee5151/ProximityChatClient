@@ -167,6 +167,9 @@ public class PCSlider extends Sprite
 
     private function updateThumbPosition():void
     {
+        if (!thumb || !track || !thumb.parent) {
+            return; // Don't update if components are disposed
+        }
         var normalizedValue:Number = (_currentValue - _minValue) / (_maxValue - _minValue);
 
         if (_orientation == VERTICAL)

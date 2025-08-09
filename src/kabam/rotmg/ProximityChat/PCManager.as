@@ -44,6 +44,8 @@ public class PCManager extends Sprite
 
     private var audioBridge:PCBridge;
 
+    private var voiceService:VoiceChatService;
+
     public function PCManager(
             x:Number = 100,
             y:Number = 100,
@@ -147,9 +149,8 @@ public class PCManager extends Sprite
         );
         addChild(chatVisualizer);
 
-        audioBridge = new PCBridge(this);
-        audioBridge.startAudioProgram();
-
+        voiceService = VoiceChatService.getInstance();
+        voiceService.initialize();
 
     }
     private function onToggleChanged(e:Event):void
@@ -157,25 +158,20 @@ public class PCManager extends Sprite
         var toggle:PCToggle = e.target as PCToggle;
         trace("PCManager: Toggle state changed to:", toggle.getStateString());
 
-        if (audioBridge)
+        var voiceService:VoiceChatService = VoiceChatService.getInstance();
+
+        if (toggle.isOn)
         {
-            trace("PCManager: audioBridge exists, sending command");
-            if (toggle.isOn)
-            {
-                trace("PCManager: Calling startMicrophone()");
-                audioBridge.startMicrophone();
-            }
-            else
-            {
-                trace("PCManager: Calling stopMicrophone()");
-                audioBridge.stopMicrophone();
-            }
+            trace("PCManager: Calling startMicrophone()");
+            voiceService.startMicrophone();
         }
         else
         {
-            trace("PCManager: ERROR - audioBridge is null!");
+            trace("PCManager: Calling stopMicrophone()");
+            voiceService.stopMicrophone();
         }
     }
+
     private function applyDefaultStyling():void
     {
         // Style the mask/background
@@ -358,40 +354,25 @@ public class PCManager extends Sprite
     }
     public function dispose():void
     {
-        // Remove event listeners
+        // Step 1: Remove event listeners FIRST (prevent any callbacks)
         if (verticalSlider)
         {
             verticalSlider.removeEventListener(PCSlider.VALUE_CHANGED, onSliderValueChanged);
-            verticalSlider.dispose();
         }
 
-        // Clear content
-        clearChatContent();
-
-        // Remove components
-        if (maskBackground && maskBackground.parent)
-        {
-            removeChild(maskBackground);
-            maskBackground.dispose();
-        }
-
-        if (verticalSlider && verticalSlider.parent)
-        {
-            removeChild(verticalSlider);
-        }
-
-        if (chatTabs)
-        {
-            chatTabs.dispose();
-            if (chatTabs.parent) removeChild(chatTabs);
-            chatTabs = null;
-        }
         if (chatToggle)
         {
             chatToggle.removeEventListener(PCToggle.TOGGLE_CHANGED, onToggleChanged);
-            chatToggle.dispose();
-            if (chatToggle.parent) removeChild(chatToggle);
-            chatToggle = null;
+        }
+
+        // Step 2: Clear content BEFORE disposing slider (while slider still works)
+        clearChatContent();
+
+        // Step 3: Now dispose components in reverse order of creation
+        if (audioBridge)
+        {
+            audioBridge.dispose();
+            audioBridge = null;
         }
 
         if (chatVisualizer)
@@ -401,17 +382,40 @@ public class PCManager extends Sprite
             chatVisualizer = null;
         }
 
-        if (audioBridge)
+        if (chatToggle)
         {
-            audioBridge.dispose();
-            audioBridge = null;
+            chatToggle.dispose();
+            if (chatToggle.parent) removeChild(chatToggle);
+            chatToggle = null;
         }
+
+        if (chatTabs)
+        {
+            chatTabs.dispose();
+            if (chatTabs.parent) removeChild(chatTabs);
+            chatTabs = null;
+        }
+
+        // Step 4: Dispose slider AFTER content is cleared
+        if (verticalSlider && verticalSlider.parent)
+        {
+            removeChild(verticalSlider);
+            verticalSlider.dispose();
+        }
+
+        // Step 5: Dispose mask/background last
+        if (maskBackground && maskBackground.parent)
+        {
+            removeChild(maskBackground);
+            maskBackground.dispose();
+        }
+
+        // Step 6: Set references to null
         maskBackground = null;
         verticalSlider = null;
         chatContent = null;
-
-
     }
+
 
 
 

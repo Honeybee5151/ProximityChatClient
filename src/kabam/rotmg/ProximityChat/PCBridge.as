@@ -8,20 +8,18 @@ import flash.events.Event;
 import flash.utils.ByteArray;
 import flash.utils.setTimeout;
 
-public class PCBridge
-{
+public class PCBridge {
     private var audioProcess:NativeProcess;
     private var proximityChatManager:PCManager; // Fixed class name
 
-    public function PCBridge(manager:PCManager) // Fixed constructor name (had extra 'e')
-    {
-        proximityChatManager = manager;
+
+    public function PCBridge(manager:PCManager = null) {
+        proximityChatManager = manager; // Can be null
     }
 
-    public function startAudioProgram():void
-    {
-        try
-        {
+    public function startAudioProgram():void {
+        trace("PCBridge: CONSTRUCTOR CALLED - VERSION 789 - NEW CODE LOADED");
+        try {
             // Debug: Check application directory
             trace("PCBridge: Application directory:", File.applicationDirectory.nativePath);
 
@@ -35,13 +33,11 @@ public class PCBridge
             var appDir:File = File.applicationDirectory;
             var files:Array = appDir.getDirectoryListing();
             trace("PCBridge: Files in application directory:");
-            for each (var f:File in files)
-            {
+            for each (var f:File in files) {
                 trace("  - " + f.name);
             }
 
-            if (!file.exists)
-            {
+            if (!file.exists) {
                 trace("PCBridge: ERROR - ConsoleApp1.exe not found!");
                 return;
             }
@@ -62,30 +58,25 @@ public class PCBridge
             trace("PCBridge: Process info:", audioProcess.toString());
 
             setTimeout(connectToPipe, 1000);
-        }
-        catch (e:Error)
-        {
+        } catch (e:Error) {
             trace("PCBridge: Error starting audio program:", e.message);
             trace("PCBridge: Error details:", e.toString());
         }
     }
 
 
-    private function connectToPipe():void
-    {
+    private function connectToPipe():void {
         // Send initial commands
         sendCommand("GET_MICS");
     }
 
-    private function onOutputData(e:ProgressEvent):void
-    {
+    private function onOutputData(e:ProgressEvent):void {
         var output:String = audioProcess.standardOutput.readUTFBytes(audioProcess.standardOutput.bytesAvailable);
         trace("PCBridge: *** RECEIVED FROM C# ***:", output);
         processAudioMessage(output);
     }
 
-    private function onErrorData(e:ProgressEvent):void
-    {
+    private function onErrorData(e:ProgressEvent):void {
         var error:String = audioProcess.standardError.readUTFBytes(audioProcess.standardError.bytesAvailable);
         trace("PCBridge: *** C# ERROR ***:", error);
     }
@@ -95,14 +86,11 @@ public class PCBridge
         trace("Audio program exited with code:", e.exitCode);
     }
 
-    private function processAudioMessage(message:String):void
-    {
-        try
-        {
+    private function processAudioMessage(message:String):void {
+        try {
             var lines:Array = message.split('\n');
 
-            for each (var line:String in lines)
-            {
+            for each (var line:String in lines) {
                 if (line.length == 0) continue;
 
                 trace("PCBridge: Processing line:", line); // Debug each line
@@ -117,25 +105,22 @@ public class PCBridge
 
                 switch (parts[0]) {
                     case "MIC_STATUS":
-                        trace("PCBridge: Entered MIC_STATUS case");
+                        try {
+                            trace("PCBridge: Entered MIC_STATUS case");
 
-                        // Simpler, more reliable processing
-                        var rawValue:String = parts[1] ? String(parts[1]) : "";
+                            var rawValue:String = parts[1] ? String(parts[1]) : "";
 
-                        // Simple cleanup - just remove spaces and convert to lowercase
-                        rawValue = rawValue.split(" ").join("").toLowerCase();
+                            // Remove ALL whitespace characters including \r, \n, \t, and spaces
+                            rawValue = rawValue.replace(/\s/g, "").toLowerCase();
 
-                        var isEnabled:Boolean = (rawValue == "true");
-                        trace("PCBridge: Raw MIC_STATUS value:", parts[1], "Cleaned:", rawValue, "Parsed as:", isEnabled);
+                            var isEnabled:Boolean = (rawValue == "true");
+                            trace("PCBridge: MIC_STATUS -", parts[1], "→", isEnabled);
 
-                        trace("PCBridge: proximityChatManager =", proximityChatManager);
-
-                        if (proximityChatManager) {
-                            trace("PCBridge: Calling updateToggleState with:", isEnabled);
-                            proximityChatManager.updateToggleState(isEnabled);
-                            trace("PCBridge: updateToggleState completed");
-                        } else {
-                            trace("PCBridge: ERROR - proximityChatManager is null!");
+                            if (proximityChatManager) {
+                                proximityChatManager.updateToggleState(isEnabled);
+                            }
+                        } catch (e:Error) {
+                            trace("PCBridge: ERROR in MIC_STATUS:", e.message);
                         }
                         break;
                     case "MIC_COUNT":
@@ -149,63 +134,80 @@ public class PCBridge
                     default:
                         trace("PCBridge: Unknown command:", parts[0]);
                         break;
+                    case "AUDIO_LEVEL":
+                        var level:Number = parseFloat(parts[1]);
+                        trace("PCBridge: Audio level:", level);
+                        if (proximityChatManager) { // Only update UI if it exists
+                            proximityChatManager.updateVisualizerLevel(level);
+                        }
+                        break;
                 }
             }
-        }
-        catch (error:Error)
-        {
+        } catch (error:Error) {
             trace("PCBridge: ERROR in processAudioMessage:", error.message);
             trace("PCBridge: Error stack:", error.getStackTrace());
             trace("PCBridge: Raw message was:", message);
         }
     }
-    public function sendCommand(command:String):void
-    {
+
+    public function sendCommand(command:String):void {
         trace("PCBridge: Attempting to send command:", command); // Add this
 
-        if (audioProcess && audioProcess.running)
-        {
+        if (audioProcess && audioProcess.running) {
             trace("PCBridge: Process is running, sending command"); // Add this
             audioProcess.standardInput.writeUTFBytes(command + "\n");
             trace("PCBridge: Command sent successfully"); // Add this
-        }
-        else
-        {
+        } else {
             trace("PCBridge: ERROR - Process not running or null"); // Add this
             trace("PCBridge: audioProcess =", audioProcess);
             if (audioProcess) trace("PCBridge: audioProcess.running =", audioProcess.running);
         }
     }
-    public function startMicrophone():void
-    {
+
+    public function startMicrophone():void {
         sendCommand("START_MIC");
     }
 
-    public function stopMicrophone():void
-    {
+    public function stopMicrophone():void {
         sendCommand("STOP_MIC");
     }
 
-    public function selectMicrophone(micId:String):void
-    {
+    public function selectMicrophone(micId:String):void {
         sendCommand("SELECT_MIC:" + micId);
     }
 
-    private function updateMicrophoneList(jsonString:String):void
-    {
+    private function updateMicrophoneList(jsonString:String):void {
         // Parse JSON and update your Algorithm tab UI
         // You'll need to implement a dropdown in your Algorithm tab background
         trace("Received microphone list:", jsonString);
     }
 
-    public function dispose():void
-    {
-        // Send exit command before closing
-        sendCommand("EXIT");
+    public function dispose():void {
+        trace("PCBridge: dispose() called");
 
-        if (audioProcess && audioProcess.running)
-        {
-            audioProcess.exit(true); // Force close
+        try {
+            // Send exit command ONLY if process is actually running
+            if (audioProcess && audioProcess.running) {
+                sendCommand("EXIT");
+
+                // Give the process a moment to exit gracefully
+                setTimeout(function ():void {
+                    if (audioProcess && audioProcess.running) {
+                        trace("PCBridge: Force closing process");
+                        audioProcess.exit(true);
+                    }
+                }, 100);
+            }
+        } catch (e:Error) {
+            trace("PCBridge: Error during disposal:", e.message);
+            // Force close if graceful exit fails
+            if (audioProcess) {
+                try {
+                    audioProcess.exit(true);
+                } catch (e2:Error) {
+                    trace("PCBridge: Force close also failed:", e2.message);
+                }
+            }
         }
     }
 }
