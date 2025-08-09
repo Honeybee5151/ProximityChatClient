@@ -122,6 +122,15 @@ public class PCToggle extends Sprite
 
         // Update background color
         drawBackground();
+        trace("PCToggle: updateVisuals called, _isOn =", _isOn);
+
+        // Clear previous graphics
+        graphics.clear();
+
+        // Your existing visual update code...
+        // Then add this at the end:
+
+        trace("PCToggle: Visual update complete, button should appear:", _isOn ? "ON" : "OFF");
     }
 
     private function centerLabel():void
@@ -294,5 +303,8 @@ public class PCToggle extends Sprite
         background = null;
         label = null;
     }
+
+
+
 }
 }

@@ -131,7 +131,7 @@ public class PCTabs extends Sprite
 
         // Create background for "Algorithm" tab
         algorithmBackground = new Sprite();
-        createBackgroundContent(algorithmBackground, 0x2a1a1a, "Algorithm Content Area");
+        createBackgroundContent(algorithmBackground, 0x2a1a1a, "Adjust Content Area");
         tabBackgrounds.push(algorithmBackground);
     }
 
@@ -372,8 +372,24 @@ class TabButton extends Sprite
 
     private function centerLabel():void
     {
-        label.x = (_width - label.width) / 2;
-        label.y = (_height - label.height) / 2;
+        // First, let it auto-size to measure the text
+        label.autoSize = TextFieldAutoSize.LEFT;
+        var textHeight:Number = label.textHeight;
+
+        // Now set it to fixed size
+        label.autoSize = TextFieldAutoSize.NONE;
+        label.width = _width;
+        label.height = _height;
+
+        // Create a TextFormat to center the text
+        var format:TextFormat = new TextFormat();
+        format.align = "center";
+        label.setTextFormat(format);
+        label.defaultTextFormat = format;
+
+        // Position the TextField to fill the tab with proper vertical centering
+        label.x = 0;
+        label.y = (_height - textHeight) / 2 - 2; // -2 for slight adjustment
     }
 
     private function drawBackground(color:uint):void

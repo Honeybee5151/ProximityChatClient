@@ -152,27 +152,29 @@ public class PCManager extends Sprite
 
 
     }
-
     private function onToggleChanged(e:Event):void
     {
         var toggle:PCToggle = e.target as PCToggle;
-        trace("Proximity chat toggle state:", toggle.getStateString());
+        trace("PCManager: Toggle state changed to:", toggle.getStateString());
 
-        // Send command to C# audio program
         if (audioBridge)
         {
+            trace("PCManager: audioBridge exists, sending command");
             if (toggle.isOn)
             {
+                trace("PCManager: Calling startMicrophone()");
                 audioBridge.startMicrophone();
             }
             else
             {
+                trace("PCManager: Calling stopMicrophone()");
                 audioBridge.stopMicrophone();
             }
         }
-
-        // Dispatch event so GameSprite can listen if needed
-        dispatchEvent(new Event("proximityToggleChanged"));
+        else
+        {
+            trace("PCManager: ERROR - audioBridge is null!");
+        }
     }
     private function applyDefaultStyling():void
     {
