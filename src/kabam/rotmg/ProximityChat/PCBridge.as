@@ -11,6 +11,7 @@ import flash.utils.setTimeout;
 public class PCBridge {
     private var audioProcess:NativeProcess;
     private var proximityChatManager:PCManager; // Fixed class name
+    private var availableMicrophones:Array;
 
 
     public function PCBridge(manager:PCManager = null) {
@@ -141,6 +142,44 @@ public class PCBridge {
                             proximityChatManager.updateVisualizerLevel(level);
                         }
                         break;
+                    case "MIC_DEVICE":
+                        trace("PCBridge: *** MIC_DEVICE case triggered ***");
+                        // Parse microphone data: ID|Name|IsDefault
+                        var micData:Array = value.split('|');
+                        trace("PCBridge: Parsed mic data:", micData);
+                        if (micData.length >= 3) {
+                            var micInfo:Object = {
+                                Id: micData[0].replace(/\s/g, ""),
+                                Name: micData[1],
+                                IsDefault: micData[2].replace(/\s/g, "").toLowerCase() == "true"
+                            };
+                            trace("PCBridge: Created mic info:", micInfo.Name, "Default:", micInfo.IsDefault);
+
+                            if (!availableMicrophones) availableMicrophones = [];
+                            availableMicrophones.push(micInfo);
+                            trace("PCBridge: Total mics collected:", availableMicrophones.length);
+                        }
+                        break;
+                    case "DEFAULT_MIC":
+                        trace("PCBridge: *** DEFAULT_MIC case triggered ***");
+                        trace("PCBridge: availableMicrophones length:", availableMicrophones ? availableMicrophones.length : 0);
+
+                        if (availableMicrophones) {
+                            // Store in VoiceChatService instead of sending to PCManager
+                            VoiceChatService.getInstance().setStoredMicrophones(availableMicrophones);
+                            trace("PCBridge: Microphones stored in VoiceChatService");
+
+                            // Also send to PCManager if it exists
+                            if (proximityChatManager) {
+                                trace("PCBridge: Sending to current PCManager");
+                                proximityChatManager.setAvailableMicrophones(availableMicrophones);
+                            }
+
+                            availableMicrophones = []; // Reset
+                        }
+                        break;
+
+
                 }
             }
         } catch (error:Error) {
@@ -210,5 +249,19 @@ public class PCBridge {
             }
         }
     }
+    public function sendStoredMicrophones():void {
+        trace("PCBridge: sendStoredMicrophones() called");
+        trace("PCBridge: availableMicrophones exists:", availableMicrophones != null);
+        trace("PCBridge: availableMicrophones length:", availableMicrophones ? availableMicrophones.length : 0);
+        trace("PCBridge: proximityChatManager exists:", proximityChatManager != null);
+
+        if (availableMicrophones && availableMicrophones.length > 0 && proximityChatManager) {
+            trace("PCBridge: Sending stored microphones to PCManager");
+            proximityChatManager.setAvailableMicrophones(availableMicrophones);
+            availableMicrophones = []; // Reset after sending
+        }
+    }
+
+
 }
 }

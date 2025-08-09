@@ -3,6 +3,8 @@ import com.company.assembleegameclient.map.Camera;
 import com.company.assembleegameclient.parameters.Parameters;
 import com.company.assembleegameclient.util.AssetLoader;
 import com.company.assembleegameclient.util.StageProxy;
+
+import flash.desktop.NativeApplication;
 import flash.display.LoaderInfo;
 import flash.display.Sprite;
 import flash.display.Stage;
@@ -64,26 +66,16 @@ public class WebMain extends Sprite {
             addEventListener(Event.ADDED_TO_STAGE, this.onAddedToStage);
         }
         //777592
-        if (ExternalInterface.available) {
-            try {
-                // Register JavaScript function to call when page closes
-                ExternalInterface.addCallback("handleAppClose", onApplicationExit);
-
-                // Add JavaScript to detect page unload
-                ExternalInterface.call("eval",
-                        "window.addEventListener('beforeunload', function() { " +
-                        "if (window.handleAppClose) window.handleAppClose(); " +
-                        "});"
-                );
-            } catch (e:Error) {
-                trace("Could not setup close detection:", e.message);
-            }
+        if (NativeApplication.nativeApplication) {
+            NativeApplication.nativeApplication.addEventListener(
+                    Event.EXITING,
+                    onApplicationExiting
+            );
+        }
         }
 
-        this.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onUncaughtError);
-    }
 
-    protected var context:IContext;
+        protected var context:IContext;
 
     private function setup():void {
         this.hackParameters();
@@ -162,9 +154,12 @@ public class WebMain extends Sprite {
         this.setup();
     }
     //777592
-    private function onApplicationExit():void {
-        VoiceChatService.getInstance().dispose(); // NOW kill the C# process
+    private function onApplicationExiting(e:Event):void {
+        trace("WebMain: Application force closing, disposing voice service");
+        VoiceChatService.getInstance().dispose();
+        // Don't prevent the exit, just cleanup
     }
+
     private function onUncaughtError(e:UncaughtErrorEvent):void {
         var error:Error = e.error as Error;
         if (error) {

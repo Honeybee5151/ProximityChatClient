@@ -8,6 +8,8 @@ import flash.events.Event;
 import flash.text.TextField;
 import flash.text.TextFormat;
 import flash.text.TextFieldAutoSize;
+import flash.utils.Dictionary;
+
 
 public class PCTabs extends Sprite
 {
@@ -53,6 +55,11 @@ public class PCTabs extends Sprite
     // Events
     public static const TAB_CHANGED:String = "tabChanged";
 
+    public var micSelector:PCMicSelector;
+    private var backgroundMicSelectors:Dictionary = new Dictionary()
+
+
+
     public function PCTabs (
             x:Number = 0,
             y:Number = 0,
@@ -78,6 +85,7 @@ public class PCTabs extends Sprite
         activeTabIndex = 0;
 
         initialize();
+
     }
 
     private function initialize():void
@@ -95,6 +103,7 @@ public class PCTabs extends Sprite
 
         // Create backgrounds for each tab
         createBackgrounds();
+
 
         // Set initial active tab
         setActiveTab(0, false);
@@ -121,7 +130,6 @@ public class PCTabs extends Sprite
         // Apply styling to all tabs
         updateTabStyling();
     }
-
     private function createBackgrounds():void
     {
         // Create background for "Blocked" tab
@@ -130,14 +138,15 @@ public class PCTabs extends Sprite
         tabBackgrounds.push(blockedBackground);
 
         // Create background for "Algorithm" tab
-        algorithmBackground = new Sprite();
-        createBackgroundContent(algorithmBackground, 0x2a1a1a, "Adjust Content Area");
+        algorithmBackground = new Sprite();  // Change back to regular Sprite
+        createBackgroundContent(algorithmBackground, 0x2a1a1a, "Adjust stuff");
         tabBackgrounds.push(algorithmBackground);
     }
-
+    public function getMicSelectorForBackground(background:Sprite):PCMicSelector {
+        return backgroundMicSelectors[background];
+    }
     private function createBackgroundContent(background:Sprite, color:uint, labelText:String):void
     {
-        // Just add a label for identification (no colored background overlay)
         var label:TextField = new TextField();
         label.text = labelText;
         label.textColor = 0xcccccc;
@@ -146,8 +155,25 @@ public class PCTabs extends Sprite
         label.y = 10;
         background.addChild(label);
 
-        // You can add specific content for each tab here later
-        // For now, each tab just shows its label
+        // Add microphone selector to the "Adjust" tab content
+        if (labelText == "Adjust stuff") {
+            var micSelector:PCMicSelector = new PCMicSelector(275, 25);
+            micSelector.x = 10;
+            micSelector.y = 40;
+            background.addChild(micSelector);
+
+            // Store reference in dictionary
+            backgroundMicSelectors[background] = micSelector;
+
+            // ADD EVENT LISTENER HERE:
+            micSelector.addEventListener(PCMicSelector.MIC_SELECTED, onMicrophoneSelected);
+        }
+
+
+    }
+    private function onMicrophoneSelected(e:Event):void {
+        // Forward the event to PCManager
+        dispatchEvent(new Event("microphoneSelected"));
     }
 
     // Event handlers
@@ -298,6 +324,7 @@ public class PCTabs extends Sprite
             algorithmTab.removeEventListener(MouseEvent.CLICK, onAlgorithmTabClick);
             algorithmTab.dispose();
         }
+
 
         // Clear collections
         tabs = null;
@@ -462,6 +489,8 @@ class TabButton extends Sprite
     {
         removeEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
         removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+
+
 
         if (background && background.parent) removeChild(background);
         if (label && label.parent) removeChild(label);

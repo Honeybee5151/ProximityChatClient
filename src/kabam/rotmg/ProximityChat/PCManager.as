@@ -152,6 +152,66 @@ public class PCManager extends Sprite
         voiceService = VoiceChatService.getInstance();
         voiceService.initialize();
 
+        chatTabs.addEventListener("microphoneSelected", onMicrophoneSelected);
+
+        // At the end of PCManager.initialize():
+
+        trace("PCManager: initialize() complete, getting VoiceChatService");
+        var voiceService:VoiceChatService = VoiceChatService.getInstance();
+        voiceService.initialize();
+
+// Listen for microphone updates
+        voiceService.addMicrophoneListener(onMicrophonesReceived);
+
+// Check if already available
+        trace("PCManager: Checking for stored microphones");
+        if (voiceService.hasStoredMicrophones()) {
+            trace("PCManager: Found stored microphones, retrieving them");
+            var mics:Array = voiceService.getStoredMicrophones();
+            onMicrophonesReceived(mics);
+        } else {
+            trace("PCManager: No stored microphones found, waiting for notification");
+        }
+    }
+    private function onMicrophonesReceived(mics:Array):void {
+        trace("PCManager: Received", mics.length, "microphones from VoiceChatService");
+        setAvailableMicrophones(mics);
+    }
+
+    private function onMicrophoneSelected(e:Event):void {
+        if (chatTabs && chatTabs.algorithmTabBackground) {
+            var micSelector:PCMicSelector = chatTabs.getMicSelectorForBackground(chatTabs.algorithmTabBackground);
+            if (micSelector) {
+                var selectedMicId:String = micSelector.selectedMicrophoneId;
+                trace("PCManager: Microphone selected:", micSelector.selectedMicrophoneName);
+
+                if (audioBridge) {
+                    audioBridge.selectMicrophone(selectedMicId);
+                }
+            }
+        }
+    }
+
+    public function setAvailableMicrophones(mics:Array):void {
+        trace("PCManager: setAvailableMicrophones called with", mics.length, "microphones");
+
+        if (chatTabs && chatTabs.algorithmTabBackground) {
+            var micSelector:PCMicSelector = chatTabs.getMicSelectorForBackground(chatTabs.algorithmTabBackground);
+            if (micSelector) {
+                trace("PCManager: Found mic selector, setting microphones");
+                micSelector.setMicrophones(mics);
+            } else {
+                trace("PCManager: Mic selector not found in background");
+            }
+        } else {
+            trace("PCManager: chatTabs or algorithmTabBackground is null");
+        }
+    }
+    public function getMicSelectorForBackground(background:Sprite):PCMicSelector {
+        if (chatTabs) {
+            return chatTabs.getMicSelectorForBackground(background);
+        }
+        return null;
     }
     private function onToggleChanged(e:Event):void
     {
@@ -364,10 +424,13 @@ public class PCManager extends Sprite
         {
             chatToggle.removeEventListener(PCToggle.TOGGLE_CHANGED, onToggleChanged);
         }
-
+        if (chatTabs) {
+            chatTabs.removeEventListener("microphoneSelected", onMicrophoneSelected);
+        }
         // Step 2: Clear content BEFORE disposing slider (while slider still works)
         clearChatContent();
-
+        var voiceService:VoiceChatService = VoiceChatService.getInstance();
+        voiceService.removeMicrophoneListener(onMicrophonesReceived);
         // Step 3: Now dispose components in reverse order of creation
         if (audioBridge)
         {
