@@ -202,23 +202,22 @@ public class PCMicSelector extends Sprite {
         isDropdownOpen = !isDropdownOpen;
         dropdown.visible = isDropdownOpen;
 
-        if (isDropdownOpen && stage) {
-            stage.addEventListener(MouseEvent.CLICK, onStageClick);
-        }
+        // Remove the stage listener - we don't want to close on any click
+        // if (isDropdownOpen && stage) {
+        //     stage.addEventListener(MouseEvent.CLICK, onStageClick);
+        // }
     }
-
     private function closeDropdown():void {
         isDropdownOpen = false;
         dropdown.visible = false;
 
-        if (stage) {
-            stage.removeEventListener(MouseEvent.CLICK, onStageClick);
-        }
+        // Remove this since we're not using stage listeners anymore
+        // if (stage) {
+        //     stage.removeEventListener(MouseEvent.CLICK, onStageClick);
+        // }
     }
 
-    private function onStageClick(e:MouseEvent):void {
-        closeDropdown();
-    }
+
 
     private function onItemClick(e:MouseEvent):void {
         trace("PCMicSelector: Item clicked!"); // Add this debug
@@ -321,9 +320,7 @@ public class PCMicSelector extends Sprite {
     }
 
     public function dispose():void {
-        if (stage) {
-            stage.removeEventListener(MouseEvent.CLICK, onStageClick);
-        }
+
 
         removeEventListener(MouseEvent.CLICK, onSelectorClick);
         removeEventListener(MouseEvent.MOUSE_OVER, onMouseOver);

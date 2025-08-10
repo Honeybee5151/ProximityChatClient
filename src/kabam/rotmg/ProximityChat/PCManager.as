@@ -1,5 +1,6 @@
 package kabam.rotmg.ProximityChat {
 
+import flash.display.Shape;
 import flash.display.Sprite;
 import flash.events.Event;
 import flash.geom.Rectangle;
@@ -78,7 +79,14 @@ public class PCManager extends Sprite
         // Create chat content container
         chatContent = new Sprite();
 
-        // Create vertical slider (positioned to the right of the main container)
+        // CREATE A VIRTUAL SCROLLABLE BACKGROUND
+        var virtualBackground:Shape = new Shape();
+        virtualBackground.graphics.beginFill(0x000000, 0); // Transparent
+        virtualBackground.graphics.drawRect(0, 0, _containerWidth, _containerHeight * 3); // 3x height
+        virtualBackground.graphics.endFill();
+        chatContent.addChild(virtualBackground); // Add this FIRST so it defines the content area
+
+        // Create vertical slider
         verticalSlider = new PCSlider(
                 _sliderWidth,
                 _containerHeight - (_sliderMargin * 2),
@@ -86,7 +94,7 @@ public class PCManager extends Sprite
                 _containerY + _sliderMargin,
                 PCSlider.VERTICAL,
                 0,
-                0  // Will be updated when content is added
+                _containerHeight * 2  // Set initial scroll range
         );
 
         // Link slider to control chat content
@@ -279,9 +287,9 @@ public class PCManager extends Sprite
 
     private function updateContentHeight():void
     {
-        // Calculate the total content height
+        // Calculate the total content height (excluding the virtual background)
         var maxY:Number = 0;
-        for (var i:int = 0; i < chatContent.numChildren; i++)
+        for (var i:int = 1; i < chatContent.numChildren; i++) // Start from 1 to skip virtual background
         {
             var child:Sprite = chatContent.getChildAt(i) as Sprite;
             if (child)
@@ -295,13 +303,15 @@ public class PCManager extends Sprite
         }
 
         _contentHeight = maxY;
-        _maxScrollRange = Math.max(0, _contentHeight - _containerHeight);
+
+        // Always maintain at least 2x container height for scrolling
+        _maxScrollRange = _containerHeight * 2;
 
         // Update slider range
         verticalSlider.setRange(0, _maxScrollRange);
 
-        // Show/hide slider based on content
-        verticalSlider.visible = _maxScrollRange > 0;
+        // Always show slider
+        verticalSlider.visible = true;
     }
 
     // Position and sizing methods

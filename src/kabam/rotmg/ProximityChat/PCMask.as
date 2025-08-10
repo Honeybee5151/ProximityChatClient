@@ -1,5 +1,6 @@
 package kabam.rotmg.ProximityChat {
 
+import flash.display.DisplayObject;
 import flash.display.Sprite;
 import flash.display.Graphics;
 import flash.display.Shape;
@@ -146,10 +147,9 @@ public class PCMask extends Sprite
         addChild(maskShape);
         maskShape.visible = false;
 
-        // Apply mask to this container
-        this.mask = maskShape;
+        // Don't apply mask to the container itself
+        // The mask will be applied to content added via addChildWithMask()
     }
-
     // Public methods for customization
     public function setPosition(x:Number, y:Number):void
     {
@@ -165,7 +165,19 @@ public class PCMask extends Sprite
         this._height = height;
         redraw();
     }
+    public override function addChild(child:DisplayObject):DisplayObject
+    {
+        // Add the child normally
+        var addedChild:DisplayObject = super.addChild(child);
 
+        // If this child should be masked (and it's not our internal components)
+        if (child != background && child != border && child != maskShape && child != this.mask)
+        {
+            child.mask = maskShape;
+        }
+
+        return addedChild;
+    }
     public function setBackgroundColor(color:uint, alpha:Number = -1):void
     {
         _backgroundColor = color;

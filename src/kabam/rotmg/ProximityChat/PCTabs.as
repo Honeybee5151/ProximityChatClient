@@ -157,7 +157,7 @@ public class PCTabs extends Sprite
 
         // Add microphone selector to the "Adjust" tab content
         if (labelText == "Adjust stuff") {
-            var micSelector:PCMicSelector = new PCMicSelector(275, 25);
+            var micSelector:PCMicSelector = new PCMicSelector(280, 25);
             micSelector.x = 10;
             micSelector.y = 40;
             background.addChild(micSelector);
