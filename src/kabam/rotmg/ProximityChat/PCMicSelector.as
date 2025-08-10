@@ -220,9 +220,8 @@ public class PCMicSelector extends Sprite {
 
 
     private function onItemClick(e:MouseEvent):void {
-        trace("PCMicSelector: Item clicked!"); // Add this debug
+        trace("PCMicSelector: Item clicked!");
         e.stopPropagation();
-
 
         var item:Sprite = e.currentTarget as Sprite;
         var micId:String = item.name; // GET the ID from the item's name property
@@ -237,11 +236,19 @@ public class PCMicSelector extends Sprite {
         }
 
         if (mic) {
-            selectMicrophone(mic);
+            // JUST update the selection - don't dispatch event yet
+            selectedMicId = mic.Id;
+            selectedMicName = mic.Name;
+            label.text = selectedMicName;
+
+            trace("PCMicSelector: Selected microphone:", selectedMicName, "ID:", selectedMicId);
         }
+
         closeDropdown();
+
+        // ONLY dispatch event once, after everything is set up
         if (mic) {
-            trace("PCMicSelector: Dispatching MIC_SELECTED event"); // Add this debug
+            trace("PCMicSelector: Dispatching MIC_SELECTED event");
             dispatchEvent(new Event(MIC_SELECTED));
         }
     }

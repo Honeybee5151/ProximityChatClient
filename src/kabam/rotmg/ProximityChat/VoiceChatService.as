@@ -85,8 +85,14 @@ public class VoiceChatService{
             microphoneListeners.splice(index, 1);
         }
     }
-
-
+    public function setProximityChatManager(manager:*):void {
+        if (audioBridge) { // or whatever the actual variable name is
+            audioBridge.proximityChatManager = manager;
+            trace("VoiceChatService: Connected PCManager to bridge");
+        } else {
+            trace("VoiceChatService: Bridge not available yet");
+        }
+    }
 
 }
 }

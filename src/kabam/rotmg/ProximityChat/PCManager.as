@@ -180,6 +180,7 @@ public class PCManager extends Sprite
         } else {
             trace("PCManager: No stored microphones found, waiting for notification");
         }
+        voiceService.setProximityChatManager(this);
 
 
 
@@ -188,19 +189,46 @@ public class PCManager extends Sprite
         trace("PCManager: Received", mics.length, "microphones from VoiceChatService");
         setAvailableMicrophones(mics);
     }
-
     private function onMicrophoneSelected(e:Event):void {
-        if (chatTabs && chatTabs.algorithmTabBackground) {
-            var micSelector:PCMicSelector = chatTabs.getMicSelectorForBackground(chatTabs.algorithmTabBackground);
-            if (micSelector) {
-                var selectedMicId:String = micSelector.selectedMicrophoneId;
-                trace("PCManager: Microphone selected:", micSelector.selectedMicrophoneName);
+        trace("=== onMicrophoneSelected START ===");
 
-                // ADD THIS LINE - Send the SELECT_MIC command through VoiceChatService
-                var voiceService:VoiceChatService = VoiceChatService.getInstance();
-                voiceService.selectMicrophone(selectedMicId);
-            }
+        // Check if chatToggle exists first
+        if (!chatToggle) {
+            trace("ERROR: chatToggle is null!");
+            return;
         }
+
+        trace("Toggle state before:", chatToggle.isOn);
+
+        if (!chatTabs || !chatTabs.algorithmTabBackground) {
+            trace("ERROR: chatTabs or algorithmTabBackground is null");
+            return;
+        }
+
+        var micSelector:PCMicSelector = chatTabs.getMicSelectorForBackground(chatTabs.algorithmTabBackground);
+        if (!micSelector) {
+            trace("ERROR: micSelector is null");
+            return;
+        }
+
+        var selectedMicId:String = micSelector.selectedMicrophoneId;
+        if (!selectedMicId) {
+            trace("ERROR: selectedMicrophoneId is null");
+            return;
+        }
+
+        trace("PCManager: Microphone selected:", micSelector.selectedMicrophoneName);
+
+        var voiceService:VoiceChatService = VoiceChatService.getInstance();
+        if (!voiceService) {
+            trace("ERROR: voiceService is null");
+            return;
+        }
+
+        voiceService.selectMicrophone(selectedMicId);
+
+        trace("Toggle state after selectMicrophone:", chatToggle.isOn);
+        trace("=== onMicrophoneSelected END ===");
     }
 
 

@@ -10,7 +10,7 @@ import flash.utils.setTimeout;
 
 public class PCBridge {
     private var audioProcess:NativeProcess;
-    private var proximityChatManager:PCManager; // Fixed class name
+    public var proximityChatManager:PCManager; // Fixed class name
     private var availableMicrophones:Array;
 
 
@@ -121,6 +121,12 @@ public class PCBridge {
 
                             if (proximityChatManager) {
                                 proximityChatManager.updateToggleState(isEnabled);
+
+                                // ADD THIS - Reset visualizer when microphone is turned off
+                                if (!isEnabled) {
+                                    trace("PCBridge: Microphone turned OFF - resetting visualizer to 0");
+                                    proximityChatManager.updateVisualizerLevel(0);
+                                }
                             }
                         } catch (e:Error) {
                             trace("PCBridge: ERROR in MIC_STATUS:", e.message);

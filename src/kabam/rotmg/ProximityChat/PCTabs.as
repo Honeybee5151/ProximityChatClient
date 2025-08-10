@@ -324,7 +324,12 @@ public class PCTabs extends Sprite
             algorithmTab.removeEventListener(MouseEvent.CLICK, onAlgorithmTabClick);
             algorithmTab.dispose();
         }
-
+        for each (var background:Sprite in tabBackgrounds) {
+            var micSelector:PCMicSelector = getMicSelectorForBackground(background);
+            if (micSelector) {
+                micSelector.dispose(); // ADD THIS LINE
+            }
+        }
 
         // Clear collections
         tabs = null;

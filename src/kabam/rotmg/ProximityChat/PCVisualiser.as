@@ -238,8 +238,9 @@ public class PCVisualiser extends Sprite
     // Public methods for audio input
     public function setAudioLevel(level:Number):void
     {
+        var boostedLevel:Number = level * 2.0;
         // Clamp level between 0 and 1
-        _audioLevel = Math.max(0, Math.min(1, level));
+        _audioLevel = Math.max(0, Math.min(1, boostedLevel));
         _isActive = _audioLevel > 0.01;
 
         // ADD THIS DEBUG
