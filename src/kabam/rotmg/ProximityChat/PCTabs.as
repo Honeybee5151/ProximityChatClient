@@ -134,7 +134,7 @@ public class PCTabs extends Sprite
     {
         // Create background for "Blocked" tab
         blockedBackground = new Sprite();
-        createBackgroundContent(blockedBackground, 0x1a1a2a, "Blocked Content Area");
+        createBackgroundContent(blockedBackground, 0x1a1a2a, "Blocked people");
         tabBackgrounds.push(blockedBackground);
 
         // Create background for "Algorithm" tab

@@ -123,7 +123,6 @@ public class GameSprite extends Sprite {
 
       // Optional: Customize styling
       proximityChatManager.setBackgroundStyle(0x0a0a0a, 0.95, 0x333333, 1);
-      proximityChatManager.setSliderStyle(0x2a2a2a, 0x555555, 0x777777);
       proximityChatManager.setCornerRadius(10);
 
       // Add to stage

@@ -180,6 +180,9 @@ public class PCManager extends Sprite
         } else {
             trace("PCManager: No stored microphones found, waiting for notification");
         }
+
+
+
     }
     private function onMicrophonesReceived(mics:Array):void {
         trace("PCManager: Received", mics.length, "microphones from VoiceChatService");
@@ -251,7 +254,7 @@ public class PCManager extends Sprite
 
         // Style the slider
         verticalSlider.setTrackColor(0x2a2a2a, 0.8);
-        verticalSlider.setThumbColor(0x555555, 0x777777, 1.0);
+        verticalSlider.setThumbColor(0xBBBBBB, 0xDDDDDD, 1.0);
         verticalSlider.setCornerRadius(4);
         verticalSlider.setThumbSize(18);
     }
@@ -345,11 +348,7 @@ public class PCManager extends Sprite
         maskBackground.setBorder(borderColor, borderThickness);
     }
 
-    public function setSliderStyle(trackColor:uint, thumbColor:uint, thumbHoverColor:uint = 0):void
-    {
-        verticalSlider.setTrackColor(trackColor);
-        verticalSlider.setThumbColor(thumbColor, thumbHoverColor > 0 ? thumbHoverColor : thumbColor + 0x222222);
-    }
+
 
     public function setCornerRadius(radius:Number):void
     {

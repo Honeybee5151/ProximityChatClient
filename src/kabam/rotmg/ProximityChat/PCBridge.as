@@ -16,6 +16,7 @@ public class PCBridge {
 
     public function PCBridge(manager:PCManager = null) {
         proximityChatManager = manager; // Can be null
+
     }
 
     public function startAudioProgram():void {
@@ -89,6 +90,7 @@ public class PCBridge {
 
     private function processAudioMessage(message:String):void {
         try {
+            trace("PCBridge: Raw message received:", message);
             var lines:Array = message.split('\n');
 
             for each (var line:String in lines) {
@@ -138,8 +140,12 @@ public class PCBridge {
                     case "AUDIO_LEVEL":
                         var level:Number = parseFloat(parts[1]);
                         trace("PCBridge: Audio level:", level);
-                        if (proximityChatManager) { // Only update UI if it exists
+                        trace("PCBridge: proximityChatManager exists:", (proximityChatManager != null));
+                        if (proximityChatManager) {
+                            trace("PCBridge: Calling updateVisualizerLevel with:", level);
                             proximityChatManager.updateVisualizerLevel(level);
+                        } else {
+                            trace("PCBridge: ERROR - proximityChatManager is null!");
                         }
                         break;
                     case "MIC_DEVICE":
