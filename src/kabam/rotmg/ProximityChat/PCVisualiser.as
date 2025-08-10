@@ -177,6 +177,10 @@ public class PCVisualiser extends Sprite
 
     private function onUpdateTimer(e:TimerEvent):void
     {
+        // ADD THIS DEBUG (but maybe only occasionally)
+        if (Math.random() < 0.1) { // Only 10% of the time to avoid spam
+            trace("PCVisualiser: Timer update - audioLevel:", _audioLevel, "smoothed:", _smoothedLevel);
+        }
         // Smooth the audio level
         _smoothedLevel += (_audioLevel - _smoothedLevel) * _smoothing;
 
@@ -238,9 +242,11 @@ public class PCVisualiser extends Sprite
         _audioLevel = Math.max(0, Math.min(1, level));
         _isActive = _audioLevel > 0.01;
 
+        // ADD THIS DEBUG
+        trace("PCVisualiser: setAudioLevel called with:", level, "clamped to:", _audioLevel);
+
         dispatchEvent(new Event(LEVEL_CHANGED));
     }
-
     public function setAudioLevelFromDB(dbLevel:Number, minDB:Number = -60, maxDB:Number = 0):void
     {
         // Convert dB to 0-1 range

@@ -193,12 +193,14 @@ public class PCManager extends Sprite
                 var selectedMicId:String = micSelector.selectedMicrophoneId;
                 trace("PCManager: Microphone selected:", micSelector.selectedMicrophoneName);
 
-                if (audioBridge) {
-                    audioBridge.selectMicrophone(selectedMicId);
-                }
+                // ADD THIS LINE - Send the SELECT_MIC command through VoiceChatService
+                var voiceService:VoiceChatService = VoiceChatService.getInstance();
+                voiceService.selectMicrophone(selectedMicId);
             }
         }
     }
+
+
 
     public function setAvailableMicrophones(mics:Array):void {
         trace("PCManager: setAvailableMicrophones called with", mics.length, "microphones");

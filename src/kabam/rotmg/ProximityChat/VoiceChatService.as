@@ -34,7 +34,14 @@ public class VoiceChatService{
             _isEnabled = false;
         }
     }
-
+    public function selectMicrophone(microphoneId:String):void {
+        if (audioBridge) {
+            trace("VoiceChatService: Selecting microphone:", microphoneId);
+            audioBridge.selectMicrophone(microphoneId);
+        } else {
+            trace("VoiceChatService: audioBridge is null, cannot select microphone");
+        }
+    }
     public function get isEnabled():Boolean {
         return _isEnabled;
     }
