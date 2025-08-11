@@ -57,6 +57,7 @@ public class TitleView extends Sprite
    public static var anchor:Point = new Point(-40, -40);
    public static var anchor2:Point = new Point(0, -20);
    public static var proximityChatChecker:Boolean = false
+   //777592
    public function TitleView()
    {
       this.darkenFactory = new DarkenFactory();
@@ -174,6 +175,7 @@ public class TitleView extends Sprite
       this.addListeners();
       if (stage)
          stage.addEventListener("resize", positionButtons);
+      //777592
       if(!TitleView.proximityChatChecker) {
          VoiceChatService.getInstance().initialize();
          TitleView.proximityChatChecker = true;

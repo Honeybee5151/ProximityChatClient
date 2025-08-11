@@ -1,0 +1,5 @@
+Hello it is me Shangapallia again. Here we have a proximity chat for rotmg-pservers created by Claude.
+So for the main batch of files the navigation is src -> kabam -> rotmg -> ProximityChat.
+
+
+//777592 is the navigation code.
