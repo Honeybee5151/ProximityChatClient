@@ -62,6 +62,7 @@ import flash.events.TimerEvent;
 import flash.geom.Point;
 import flash.net.FileReference;
 import flash.utils.ByteArray;
+import flash.utils.IDataInput;
 import flash.utils.Timer;
 import flash.utils.getTimer;
 
@@ -73,6 +74,7 @@ import kabam.lib.net.api.MessageMap;
 import kabam.lib.net.api.MessageProvider;
 import kabam.lib.net.impl.Message;
 import kabam.lib.net.impl.SocketServer;
+import kabam.rotmg.ProximityChat.PCServerBridge;
 import kabam.rotmg.account.core.Account;
 import kabam.rotmg.application.api.ApplicationSetup;
 import kabam.rotmg.arena.control.ImminentArenaWaveSignal;
@@ -301,6 +303,8 @@ public class GameServerConnection
       public static const MARKET_MY_OFFERS_RESULT:int = 85;
       public static const BREAKDOWN_SLOT:int = 86;
       public static const IMMINENT_ARENA_WAVE:int = 87;
+      //777592
+      public static const PROXIMITY_VOICE:int = 88;
 
       private static const TO_MILLISECONDS:int = 1000;
 
@@ -504,6 +508,8 @@ public class GameServerConnection
          messages.map(SHOOTACK).toMessage(ShootAck);
          messages.map(BREAKDOWN_SLOT).toMessage(BreakdownSlot);
          messages.map(IMMINENT_ARENA_WAVE).toMessage(ImminentArenaWave).toMethod(this.onImminentArenaWave);
+         //777592
+         messages.map(PROXIMITY_VOICE).toMessage(Message).toMethod(this.onProximityVoice); // Add this line
       }
 
       private function unmapMessages() : void {
@@ -593,6 +599,8 @@ public class GameServerConnection
          messages.unmap(SWITCH_MUSIC);
          messages.unmap(BREAKDOWN_SLOT);
          messages.unmap(IMMINENT_ARENA_WAVE);
+         //777592
+         messages.unmap(PROXIMITY_VOICE);
       }
 
       private function onSwitchMusic(sm:SwitchMusic):void {
@@ -1870,7 +1878,32 @@ public class GameServerConnection
          // Get the IP from the current server connection
          return this.server_.address;
       }
+      //777592
+      private function onProximityVoice(message:Message):void {
+         try {
+            // Read the JSON data from the packet
+            var reader:IDataInput = message as IDataInput;
+            var jsonData:String = reader.readUTF();
 
+            trace("Received proximity voice packet:", jsonData);
+
+            var voiceInfo:Object = JSON.parse(jsonData);
+
+            // Extract voice data
+            var playerId:String = voiceInfo.PlayerId;
+            var audioData:String = voiceInfo.AudioData; // Base64 encoded
+            var volume:Number = voiceInfo.Volume;
+            var distance:Number = voiceInfo.Distance || 0;
+
+            trace("Playing voice from player:", playerId, "volume:", volume, "distance:", distance);
+
+            // Send to your PCServerBridge
+            PCServerBridge.getInstance().handleIncomingVoice(playerId, audioData, volume);
+
+         } catch (error:Error) {
+            trace("Error processing proximity voice packet:", error.message);
+         }
+      }
       private function onText(text:Text) : void
       {
          var go:GameObject = null;
