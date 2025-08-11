@@ -154,6 +154,15 @@ public class PCBridge {
                             trace("PCBridge: ERROR - proximityChatManager is null!");
                         }
                         break;
+                    case "VOICE_CONNECTED":
+                        trace("PCBridge: Successfully connected to voice server");
+                        VoiceChatService.getInstance().onVoiceConnected();
+                        break;
+
+                    case "VOICE_DISCONNECTED":
+                        trace("PCBridge: Disconnected from voice server");
+                        VoiceChatService.getInstance().onVoiceDisconnected();
+                        break;
                     case "MIC_DEVICE":
                         trace("PCBridge: *** MIC_DEVICE case triggered ***");
                         // Parse microphone data: ID|Name|IsDefault

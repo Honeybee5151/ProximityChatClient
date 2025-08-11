@@ -211,7 +211,7 @@ import org.swiftsuspenders.Injector;
 import robotlegs.bender.framework.api.ILogger;
 
 import kabam.rotmg.game.model.PotionInventoryModel;
-
+import kabam.rotmg.ProximityChat.VoiceChatService;
 public class GameServerConnection
    {
 
@@ -1865,6 +1865,11 @@ public class GameServerConnection
             }
          }
       }
+      //777592
+      private function getGameServerIP():String {
+         // Get the IP from the current server connection
+         return this.server_.address;
+      }
 
       private function onText(text:Text) : void
       {
@@ -1872,6 +1877,20 @@ public class GameServerConnection
          var colors:Vector.<uint> = null;
          var speechBalloonvo:AddSpeechBalloonVO = null;
          var textString:String = text.text_;
+//777592
+         if (textString.indexOf("VOICE_AUTH:") == 0) {
+            var parts:Array = textString.split(":");
+            if (parts.length >= 3) {
+               var voiceID:String = parts[1];
+               var playerID:String = parts[2];
+               var serverIP:String = getGameServerIP();
+
+               // Send to VoiceChatService
+               VoiceChatService.getInstance().handleVoiceAuth(voiceID, playerID, serverIP);
+            }
+            return; // Don't display this as a chat message
+         }
+
          if(text.objectId_ >= 0)
          {
             go = this.gs_.map.goDict_[text.objectId_];

@@ -2,6 +2,7 @@
 package kabam.rotmg.ProximityChat {
 
 import kabam.rotmg.ProximityChat.PCSettings;
+
 import flash.events.Event;
 
 public class VoiceChatService {
@@ -16,11 +17,78 @@ public class VoiceChatService {
     private var isInitialized:Boolean = false;
     private var currentPCManager:*; // Store reference to current PCManager
 
+    private var myVoiceID:String;
+    private var myPlayerID:String;
+    private var gameServerIP:String;
+    private var isVoiceConnected:Boolean = false;
+
     public static function getInstance():VoiceChatService {
         if (!_instance) {
             _instance = new VoiceChatService();
         }
         return _instance;
+    }
+
+    public function handleVoiceAuth(voiceID:String, playerID:String, serverIP:String):void {
+        trace("VoiceChatService: Received VoiceAuth - VoiceID:", voiceID, "PlayerID:", playerID, "ServerIP:", serverIP);
+
+        myVoiceID = voiceID;
+        myPlayerID = playerID;
+        gameServerIP = serverIP;
+
+        // Automatically connect to voice server
+        connectToVoiceServer();
+    }
+
+    public function connectToVoiceServer():void {
+        if (!audioBridge) {
+            trace("VoiceChatService: AudioBridge not available, cannot connect to voice server");
+            return;
+        }
+
+        if (myVoiceID && myPlayerID && gameServerIP) {
+            var connectCommand:String = "CONNECT_VOICE:" + gameServerIP + ":" + myPlayerID + ":" + myVoiceID;
+            trace("VoiceChatService: Sending voice connection command:", connectCommand);
+            audioBridge.sendCommand(connectCommand);
+        } else {
+            trace("VoiceChatService: Cannot connect - missing VoiceID, PlayerID, or server IP");
+            trace("VoiceChatService: VoiceID:", myVoiceID, "PlayerID:", myPlayerID, "ServerIP:", gameServerIP);
+        }
+    }
+    public function onVoiceConnected():void {
+        isVoiceConnected = true;
+        trace("VoiceChatService: Connected to voice server successfully");
+
+        // Notify current PCManager if it exists
+        if (currentPCManager && currentPCManager.hasOwnProperty("onVoiceServerConnected")) {
+            currentPCManager.onVoiceServerConnected();
+        }
+    }
+    public function onVoiceDisconnected():void {
+        isVoiceConnected = false;
+        trace("VoiceChatService: Disconnected from voice server");
+
+        // Notify current PCManager if it exists
+        if (currentPCManager && currentPCManager.hasOwnProperty("onVoiceServerDisconnected")) {
+            currentPCManager.onVoiceServerDisconnected();
+        }
+    }
+
+    // NEW: Getters for voice auth status
+    public function hasVoiceAuth():Boolean {
+        return myVoiceID != null && myPlayerID != null && gameServerIP != null;
+    }
+
+    public function get voiceConnected():Boolean {
+        return isVoiceConnected;
+    }
+
+    public function getVoiceID():String {
+        return myVoiceID;
+    }
+
+    public function getPlayerID():String {
+        return myPlayerID;
     }
 
     public function initialize():void {
