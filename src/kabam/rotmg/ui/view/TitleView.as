@@ -174,7 +174,11 @@ public class TitleView extends Sprite
       this.addListeners();
       if (stage)
          stage.addEventListener("resize", positionButtons);
-      VoiceChatService.getInstance().dispose();
+      if(!TitleView.proximityChatChecker) {
+         VoiceChatService.getInstance().initialize();
+         TitleView.proximityChatChecker = true;
+      }
+
 
    }
 

@@ -6,7 +6,7 @@ import flash.events.Event;
 
 public class VoiceChatService {
     private static var _instance:VoiceChatService;
-    private var audioBridge:PCBridge;
+    public var audioBridge:PCBridge;
     private var _isEnabled:Boolean = false;
     private var storedMicrophones:Array;
     private var microphoneListeners:Array = [];
@@ -236,15 +236,22 @@ public class VoiceChatService {
     }
 
     // UPDATED: Enhanced dispose with settings cleanup
-    public function dispose():void {
+    public function dispose(onComplete:Function = null):void {
         if (settings) {
             settings.removeEventListener(PCSettings.SETTINGS_LOADED, onSettingsLoaded);
             settings = null;
         }
 
         if (audioBridge) {
-            audioBridge.dispose();
+            if (onComplete != null) {
+                // Add the exit listener before disposing
+                audioBridge.addProcessExitListener(onComplete);
+            }
+            audioBridge.dispose(); // Sends EXIT command
             audioBridge = null;
+        } else if (onComplete != null) {
+            // No audioBridge, call callback immediately
+            onComplete(null);
         }
 
         currentPCManager = null;

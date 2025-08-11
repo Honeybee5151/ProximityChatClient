@@ -9,7 +9,7 @@ import flash.utils.ByteArray;
 import flash.utils.setTimeout;
 
 public class PCBridge {
-    private var audioProcess:NativeProcess;
+    public var audioProcess:NativeProcess;
     public var proximityChatManager:PCManager; // Fixed class name
     private var availableMicrophones:Array;
 
@@ -274,6 +274,15 @@ public class PCBridge {
         }
     }
 
-
+    public function addProcessExitListener(callback:Function):void {
+        if (audioProcess && audioProcess.running) {
+            audioProcess.addEventListener(NativeProcessExitEvent.EXIT, callback);
+            trace("PCBridge: Added exit listener to audio process");
+        } else if (callback != null) {
+            // Process not running, call callback immediately
+            trace("PCBridge: Process not running, calling callback immediately");
+            callback(null);
+        }
+    }
 }
 }

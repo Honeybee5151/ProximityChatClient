@@ -54,7 +54,7 @@ public class WebMain extends Sprite {
 
     public static var sWidth:Number = 800;
     public static var sHeight:Number = 600;
-    public static var proximityChatChecker:Boolean = false
+
 
     public static var STAGE:Stage;
 
@@ -156,11 +156,16 @@ public class WebMain extends Sprite {
     }
     //777592
     private function onApplicationExiting(e:Event):void {
-        trace("WebMain: Application force closing, disposing voice service");
-        VoiceChatService.getInstance().dispose();
-        // Don't prevent the exit, just cleanup
-    }
+        e.preventDefault(); // Wait for C# to exit
 
+        var voiceService:VoiceChatService = VoiceChatService.getInstance();
+        voiceService.dispose(onCSharpExited); // Pass callback
+    }
+    //777592
+    private function onCSharpExited(e:Event):void {
+        trace("WebMain: C# exited, closing Flash");
+        NativeApplication.nativeApplication.exit();
+    }
     private function onUncaughtError(e:UncaughtErrorEvent):void {
         var error:Error = e.error as Error;
         if (error) {
@@ -170,5 +175,7 @@ public class WebMain extends Sprite {
         // Don't prevent the error - let it show normally for debugging
         // e.preventDefault();
     }
+
+
 }
 }
