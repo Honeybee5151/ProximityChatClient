@@ -262,7 +262,62 @@ public class PCMicSelector extends Sprite {
         var event:Event = new Event(MIC_SELECTED);
         dispatchEvent(event);
     }
+// Add this method to your PCMicSelector class (place it after the selectMicrophone method):
 
+    /**
+     * Select a microphone by its ID (used for restoring saved selections)
+     */
+    public function selectMicrophoneById(micId:String):Boolean
+    {
+        if (!microphones || microphones.length == 0)
+        {
+            trace("PCMicSelector: Cannot select by ID - no microphones available");
+            return false;
+        }
+
+        for (var i:int = 0; i < microphones.length; i++)
+        {
+            var mic:Object = microphones[i];
+            if (mic.Id == micId)
+            {
+                trace("PCMicSelector: Found microphone to select:", mic.Name);
+
+                // Update the selection without dispatching event (to avoid loops)
+                selectedMicId = mic.Id;
+                selectedMicName = mic.Name;
+                label.text = selectedMicName;
+
+                trace("PCMicSelector: Successfully selected microphone by ID");
+                return true;
+            }
+        }
+
+        trace("PCMicSelector: Microphone with ID not found:", micId);
+        return false;
+    }
+
+    /**
+     * Select a microphone by array index and dispatch the selection event
+     */
+    public function selectMicrophoneByIndex(index:int):Boolean
+    {
+        if (!microphones || index < 0 || index >= microphones.length)
+        {
+            trace("PCMicSelector: Invalid microphone index:", index);
+            return false;
+        }
+
+        var mic:Object = microphones[index];
+        selectedMicId = mic.Id;
+        selectedMicName = mic.Name;
+        label.text = selectedMicName;
+
+        // Dispatch selection event
+        trace("PCMicSelector: Dispatching MIC_SELECTED event for index selection");
+        dispatchEvent(new Event(MIC_SELECTED));
+
+        return true;
+    }
     private function onMouseOver(e:MouseEvent):void {
         var g = background.graphics;
         g.clear();

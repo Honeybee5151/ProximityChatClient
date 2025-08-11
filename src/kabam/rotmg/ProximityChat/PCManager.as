@@ -47,6 +47,8 @@ public class PCManager extends Sprite
 
     private var voiceService:VoiceChatService;
 
+
+
     public function PCManager(
             x:Number = 100,
             y:Number = 100,
@@ -182,23 +184,24 @@ public class PCManager extends Sprite
         }
         voiceService.setProximityChatManager(this);
 
-
-
     }
-    private function onMicrophonesReceived(mics:Array):void {
+
+
+
+    private function onMicrophonesReceived(mics:Array):void
+    {
         trace("PCManager: Received", mics.length, "microphones from VoiceChatService");
         setAvailableMicrophones(mics);
+        // No more settings logic here - VoiceChatService handles it
     }
-    private function onMicrophoneSelected(e:Event):void {
+
+
+
+
+// Modify your existing onMicrophoneSelected method:
+    private function onMicrophoneSelected(e:Event):void
+    {
         trace("=== onMicrophoneSelected START ===");
-
-        // Check if chatToggle exists first
-        if (!chatToggle) {
-            trace("ERROR: chatToggle is null!");
-            return;
-        }
-
-        trace("Toggle state before:", chatToggle.isOn);
 
         if (!chatTabs || !chatTabs.algorithmTabBackground) {
             trace("ERROR: chatTabs or algorithmTabBackground is null");
@@ -212,6 +215,7 @@ public class PCManager extends Sprite
         }
 
         var selectedMicId:String = micSelector.selectedMicrophoneId;
+
         if (!selectedMicId) {
             trace("ERROR: selectedMicrophoneId is null");
             return;
@@ -225,11 +229,13 @@ public class PCManager extends Sprite
             return;
         }
 
+        // VoiceChatService will handle both selection AND saving
         voiceService.selectMicrophone(selectedMicId);
 
-        trace("Toggle state after selectMicrophone:", chatToggle.isOn);
         trace("=== onMicrophoneSelected END ===");
     }
+
+// 3. MODIFY your onToggleChanged method in PCManager:
 
 
 
@@ -261,16 +267,8 @@ public class PCManager extends Sprite
 
         var voiceService:VoiceChatService = VoiceChatService.getInstance();
 
-        if (toggle.isOn)
-        {
-            trace("PCManager: Calling startMicrophone()");
-            voiceService.startMicrophone();
-        }
-        else
-        {
-            trace("PCManager: Calling stopMicrophone()");
-            voiceService.stopMicrophone();
-        }
+        // VoiceChatService will handle both the microphone AND saving the state
+        voiceService.setChatEnabled(toggle.isOn);
     }
 
     private function applyDefaultStyling():void
@@ -299,7 +297,25 @@ public class PCManager extends Sprite
         chatContent.addChild(message);
         updateContentHeight();
     }
+    public function updateMicrophoneSelection(micId:String):void
+    {
+        if (!chatTabs || !chatTabs.algorithmTabBackground) {
+            trace("PCManager: Cannot update microphone selection - UI not ready");
+            return;
+        }
 
+        var micSelector:PCMicSelector = chatTabs.getMicSelectorForBackground(chatTabs.algorithmTabBackground);
+        if (!micSelector) {
+            trace("PCManager: Cannot update microphone selection - selector not found");
+            return;
+        }
+
+        if (micSelector.selectMicrophoneById(micId)) {
+            trace("PCManager: Updated UI to show microphone ID:", micId);
+        } else {
+            trace("PCManager: Failed to update UI for microphone ID:", micId);
+        }
+    }
     public function removeChatMessage(message:Sprite):void
     {
         if (chatContent.contains(message))
@@ -466,6 +482,7 @@ public class PCManager extends Sprite
         if (chatTabs) {
             chatTabs.removeEventListener("microphoneSelected", onMicrophoneSelected);
         }
+
         // Step 2: Clear content BEFORE disposing slider (while slider still works)
         clearChatContent();
         var voiceService:VoiceChatService = VoiceChatService.getInstance();
