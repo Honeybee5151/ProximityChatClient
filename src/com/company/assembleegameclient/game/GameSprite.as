@@ -42,6 +42,8 @@ import flash.utils.setTimeout;
 
 import kabam.lib.loopedprocs.LoopedCallback;
 import kabam.lib.loopedprocs.LoopedProcess;
+import kabam.rotmg.ui.view.TitleView;
+
 //777592
 import kabam.rotmg.ProximityChat.VoiceChatService;
 import kabam.rotmg.constants.GeneralConstants;
@@ -94,7 +96,8 @@ public class GameSprite extends Sprite {
    public var scaledLayer:Sprite;
    public var forceScaledLayer:Sprite;
    //777592
-   private var proximityChatManager:PCManager;
+   public var proximityChatManager:PCManager;
+
 
    public function GameSprite(server:Server, gameId:int, createCharacter:Boolean, charId:int, keyTime:int, key:ByteArray, model:PlayerModel, mapJSON:String) {
       this.camera_ = new Camera();
@@ -514,24 +517,20 @@ public class GameSprite extends Sprite {
 
    public function connect() : void
    {
-      if(!this.isGameStarted)
-      {
+      if(!this.isGameStarted) {
          this.isGameStarted = true;
          Renderer.inGame = true;
          this.gsc_.connect();
          this.idleWatcher_.start(this);
          this.lastUpdate_ = getTimer();
-         stage.addEventListener(Event.ENTER_FRAME,this.onEnterFrame);
-         if (Parameters.data_.mscale == undefined)
-         {
+         stage.addEventListener(Event.ENTER_FRAME, this.onEnterFrame);
+         if (Parameters.data_.mscale == undefined) {
             Parameters.data_.mscale = "1.0";
          }
-         if (Parameters.data_.stageScale == undefined)
-         {
+         if (Parameters.data_.stageScale == undefined) {
             Parameters.data_.stageScale = StageScaleMode.NO_SCALE;
          }
-         if (Parameters.data_.uiscale == undefined)
-         {
+         if (Parameters.data_.uiscale == undefined) {
             Parameters.data_.uiscale = true;
          }
          Parameters.save();
@@ -541,9 +540,14 @@ public class GameSprite extends Sprite {
          stage.dispatchEvent(new Event(Event.RESIZE));
          Parameters.DamageCounter = [];
          //777592
-         initializePCUI();
+
+            initializePCUI();
          //777592
-         VoiceChatService.getInstance().initialize();
+         if(!TitleView.proximityChatChecker) {
+            VoiceChatService.getInstance().initialize();
+            TitleView.proximityChatChecker = true;
+         }
+
 
       }
    }
@@ -595,7 +599,7 @@ public class GameSprite extends Sprite {
          }
       }
 //777592
-         VoiceChatService.getInstance().dispose();
+
 
 
    }

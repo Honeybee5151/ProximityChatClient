@@ -54,6 +54,7 @@ public class WebMain extends Sprite {
 
     public static var sWidth:Number = 800;
     public static var sHeight:Number = 600;
+    public static var proximityChatChecker:Boolean = false
 
     public static var STAGE:Stage;
 

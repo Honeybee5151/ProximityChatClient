@@ -18,6 +18,8 @@ import flash.filters.DropShadowFilter;
 import flash.geom.Point;
 import flash.geom.Vector3D;
 
+import kabam.rotmg.ProximityChat.VoiceChatService;
+
 import kabam.rotmg.ui.model.EnvironmentData;
 import kabam.rotmg.ui.view.components.DarkenFactory;
 import kabam.rotmg.ui.view.components.MapBackground;
@@ -54,7 +56,7 @@ public class TitleView extends Sprite
    private var data:EnvironmentData;
    public static var anchor:Point = new Point(-40, -40);
    public static var anchor2:Point = new Point(0, -20);
-
+   public static var proximityChatChecker:Boolean = false
    public function TitleView()
    {
       this.darkenFactory = new DarkenFactory();
@@ -172,6 +174,8 @@ public class TitleView extends Sprite
       this.addListeners();
       if (stage)
          stage.addEventListener("resize", positionButtons);
+      VoiceChatService.getInstance().dispose();
+
    }
 
    private function updateVersionText() : void

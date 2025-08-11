@@ -1,6 +1,7 @@
 package com.company.assembleegameclient.ui.menu
 {
-   import com.company.util.GraphicsUtil;
+import com.company.assembleegameclient.game.GameSprite;
+import com.company.util.GraphicsUtil;
    import com.company.util.RectangleUtil;
    import flash.display.CapsStyle;
    import flash.display.GraphicsPath;
@@ -14,11 +15,13 @@ package com.company.assembleegameclient.ui.menu
    import flash.events.MouseEvent;
    import flash.filters.DropShadowFilter;
    import flash.geom.Rectangle;
-   
-   public class Menu extends Sprite
+
+import kabam.rotmg.ProximityChat.VoiceChatService;
+
+public class Menu extends Sprite
    {
-       
-      
+
+
       private var background_:uint;
       
       private var outline_:uint;
@@ -135,6 +138,7 @@ package com.company.assembleegameclient.ui.menu
          GraphicsUtil.clearPath(this.path_);
          GraphicsUtil.drawCutEdgeRect(-6,-6,Math.max(154,width + 12),height + 12,4,[1,1,1,1],this.path_);
          graphics.drawGraphicsData(this.graphicsData_);
+
       }
    }
 }
