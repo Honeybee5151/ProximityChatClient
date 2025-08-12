@@ -18,6 +18,7 @@ public class PCSettings extends EventDispatcher
     private static const SELECTED_MIC_NAME:String = "selectedMicrophoneName";
     private static const CHAT_ENABLED:String = "chatEnabled";
     private static const AUDIO_LEVEL:String = "audioLevel";
+    private static const PUSH_TO_TALK_ENABLED:String = "pushToTalkEnabled";
 
     // Events
     public static const SETTINGS_LOADED:String = "settingsLoaded";
@@ -91,7 +92,7 @@ public class PCSettings extends EventDispatcher
     {
         if (!_sharedObject || _sharedObject.data[INCOMING_VOLUME] === undefined)
         {
-            return 1.0; // Default to full volume
+            return 0.0; // Default to full volume
         }
 
         return _sharedObject.data[INCOMING_VOLUME] as Number;
@@ -211,7 +212,43 @@ public class PCSettings extends EventDispatcher
 
 
     }
+    /**
+     * Save push-to-talk enabled state
+     */
+    public function savePushToTalkEnabled(enabled:Boolean):void
+    {
+        if (!_sharedObject)
+        {
+            return;
+        }
 
+        try
+        {
+            _sharedObject.data[PUSH_TO_TALK_ENABLED] = enabled;
+            _sharedObject.flush();
+
+            trace("PCSettings: Saved push-to-talk enabled state:", enabled);
+
+            dispatchEvent(new Event(SETTINGS_SAVED));
+        }
+        catch (error:Error)
+        {
+            trace("PCSettings: Failed to save push-to-talk enabled state:", error.message);
+        }
+    }
+
+    /**
+     * Get saved push-to-talk enabled state (defaults to false)
+     */
+    public function getPushToTalkEnabled():Boolean
+    {
+        if (!_sharedObject || _sharedObject.data[PUSH_TO_TALK_ENABLED] === undefined)
+        {
+            return false;
+        }
+
+        return _sharedObject.data[PUSH_TO_TALK_ENABLED] as Boolean;
+    }
     /**
      * Get saved chat enabled state (defaults to false)
      */
@@ -328,7 +365,8 @@ public class PCSettings extends EventDispatcher
             selectedMicId: getSavedMicrophoneId(),
             selectedMicName: getSavedMicrophoneName(),
             chatEnabled: getChatEnabled(),
-            audioLevel: getAudioLevel()
+            audioLevel: getAudioLevel(),
+            pushToTalkEnabled: getPushToTalkEnabled()
         };
     }
 

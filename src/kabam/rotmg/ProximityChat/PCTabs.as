@@ -105,6 +105,8 @@ public class PCTabs extends Sprite {
 
         // Set initial active tab
         setActiveTab(0, false);
+
+        loadSavedPushToTalkState();
     }
 
     private function createTabs():void
@@ -202,11 +204,35 @@ public class PCTabs extends Sprite {
         var button:PCPushToTalkButton = e.target as PCPushToTalkButton;
         var enabled:Boolean = button.pushToTalkEnabled;
 
-        // Sync the global variable
+        trace("PCTabs: Push-to-talk toggled to:", enabled);
+
+        // Sync with the global variable
         MapUserInput.PCUITChecker = enabled;
+
+        // Save the state
+        PCSettings.getInstance().savePushToTalkEnabled(enabled);
 
         VoiceChatService.getInstance().setPushToTalkMode(enabled);
         dispatchEvent(new Event("pushToTalkToggled"));
+    }
+    // In your PCTabs or PCManager initialization
+    private function loadSavedPushToTalkState():void {
+        var savedState:Boolean = PCSettings.getInstance().getPushToTalkEnabled();
+        if (savedState) {
+            // Get the push-to-talk button from the algorithm background
+            var pushToTalkButton:PCPushToTalkButton = backgroundMicSelectors[algorithmBackground + "_pushToTalk"];
+            if (pushToTalkButton) {
+                // Update the button
+                pushToTalkButton.pushToTalkEnabled = savedState;
+            }
+
+            // Sync the variable
+            MapUserInput.PCUITChecker = savedState;
+            // Set the mode
+            VoiceChatService.getInstance().setPushToTalkMode(savedState);
+
+            trace("PCTabs: Loaded saved push-to-talk state:", savedState);
+        }
     }
     private function onVolumeChanged(e:Event):void {
         var slider:PCVolumeSlider = e.target as PCVolumeSlider;
