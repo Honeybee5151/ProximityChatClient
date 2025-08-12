@@ -525,7 +525,11 @@ public class MapUserInput
          case Parameters.data_.partyJoinWorld:
             this.gs_.gsc_.playerText("/pjoin");
             break;
+              //777592
          case Parameters.data_.PCTALK:
+            if(stage.focus != null) {
+               return; // Don't process when typing
+            }
             trace("MapUserInput: PCTALK key DOWN, PCUITChecker:", PCUITChecker);
             if (PCUITChecker) {
                trace("MapUserInput: Calling setPushToTalkKeyState(true)");
@@ -538,6 +542,7 @@ public class MapUserInput
 
    private function onKeyUp(event:KeyboardEvent) : void
    {
+      var stage:Stage = this.gs_.stage;
       switch(event.keyCode)
       {
          case Parameters.data_.moveUp:
@@ -560,6 +565,9 @@ public class MapUserInput
             break;
               //777592
          case Parameters.data_.PCUI:
+            if(stage.focus != null) {
+               return; // Don't process when typing
+            }
             if(!PCUIChecker) {
                gs_.initializePCUI();
                PCUIChecker = true;
@@ -582,19 +590,27 @@ public class MapUserInput
                PCUIChecker = false; // Reset the checker so it can be created again
             }
             break;
+              //777592
          case Parameters.data_.PCUIT:
+            if(stage.focus != null) {
+               return; // Don't process when typing}
+            }
             PCUITChecker = !PCUITChecker;
             trace("MapUserInput: PCUIT pressed, PCUITChecker now:", PCUITChecker);
             VoiceChatService.getInstance().setPushToTalkMode(PCUITChecker);
             break;
-
+//777592
          case Parameters.data_.PCTALK:
+            if(stage.focus != null) {
+               return; // Don't process when typing
+            }
             trace("MapUserInput: PCTALK key down, PCUITChecker:", PCUITChecker);
             if (PCUITChecker) {
                trace("MapUserInput: Calling setPushToTalkKeyState(true)");
                VoiceChatService.getInstance().setPushToTalkKeyState(false);
             }
             break;
+
          case Parameters.data_.useSpecial:
             if(this.specialKeyDown_)
             {

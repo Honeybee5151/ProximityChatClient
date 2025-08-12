@@ -252,10 +252,22 @@ public class PCBridge {
         // If enabling push-to-talk, stop any currently running mic
         if (enabled) {
             stopMicrophone();
+            trace("PCBridge: Stopped microphone for push-to-talk mode");
+
+            // Update the UI to show mic is OFF
+
+
+             VoiceChatService.getInstance().setChatEnabled(false);
+
+        } else {
+            // When disabling push-to-talk, restore normal toggle mode
+            trace("PCBridge: Push-to-talk disabled, normal toggle mode restored");
         }
 
         trace("PCBridge: Push-to-talk mode:", enabled);
     }
+
+
     public function setPushToTalkKeyState(pressed:Boolean):void {
         if (!pushToTalkEnabled) return;
 
