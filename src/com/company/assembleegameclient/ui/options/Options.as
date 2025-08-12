@@ -367,6 +367,8 @@ public class Options extends Sprite
       this.addOption(new KeyMapper("switchTabs", "Switch Tabs", "This key will switch from available tabs"));
       var key:String = Capabilities.os.split(" ")[0] == "Mac"?"Command":"Ctrl";
       this.addOption(new ChoiceOption("inventorySwap",new <String>["On","Off"],[true,false],"Switch item to/from backpack.","Hold the " + key + " key and click on an item to swap it between your inventory and your backpack.",null));
+      //777592
+      this.addOption(new KeyMapper("PCUI", "Toggle PCUI", "Use this to toggle the Proxmity Chat UI"));
    }
 
    private function addChatOptions() : void

@@ -18,6 +18,8 @@ import flash.events.TimerEvent;
 import flash.geom.Point;
 import flash.system.Capabilities;
 import flash.utils.Timer;
+
+import kabam.rotmg.ProximityChat.PCManager;
 import kabam.rotmg.application.api.ApplicationSetup;
 import kabam.rotmg.constants.GeneralConstants;
 import kabam.rotmg.constants.UseType;
@@ -65,6 +67,8 @@ public class MapUserInput
    private var potionInventoryModel:PotionInventoryModel;
    private var tabStripModel:TabStripModel;
    public var layers:Layers;
+   //777592
+   public static var PCUIChecker:Boolean = false;
 
    public function MapUserInput(gs:GameSprite)
    {
@@ -540,6 +544,30 @@ public class MapUserInput
             break;
          case Parameters.data_.rotateRight:
             this.rotateRight_ = false;
+            break;
+              //777592
+         case Parameters.data_.PCUI:
+            if(!PCUIChecker) {
+               gs_.initializePCUI();
+               PCUIChecker = true;
+            }
+            else {
+               if (gs_.proximityChatManager) {
+                  // Remove event listeners
+
+                  // Remove from display list
+                  if (gs_.proximityChatManager.parent) {
+                     gs_.removeChild(gs_.proximityChatManager);
+                  }
+
+                  // Dispose of all internal components
+                  gs_.proximityChatManager.dispose();
+
+                  // Set reference to null
+                  gs_.proximityChatManager = null;
+               }
+               PCUIChecker = false; // Reset the checker so it can be created again
+            }
             break;
          case Parameters.data_.useSpecial:
             if(this.specialKeyDown_)

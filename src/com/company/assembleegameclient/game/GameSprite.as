@@ -115,7 +115,7 @@ public class GameSprite extends Sprite {
       this.idleWatcher_ = new IdleWatcher();
    }
 //777592
-   private function initializePCUI():void {
+   public function initializePCUI():void {
       // Create proximity chat manager
       proximityChatManager = new PCManager(
               50,    // x position
@@ -132,18 +132,9 @@ public class GameSprite extends Sprite {
       addChild(proximityChatManager);
 
       // Optional: Listen for events
-      proximityChatManager.addEventListener(PCManager.CHAT_READY, onChatReady);
-      proximityChatManager.addEventListener(PCManager.CONTENT_SCROLLED, onChatScrolled);
+
    }
 
-   private function onChatReady(e:Event):void {
-      trace("Proximity chat is ready!");
-      // Add some test content or start listening for chat messages
-   }
-
-   private function onChatScrolled(e:Event):void {
-      trace("Chat content scrolled to:", proximityChatManager.slider.value);
-   }
 
    public function addBossBar():void
    {
@@ -539,14 +530,10 @@ public class GameSprite extends Sprite {
          stage.addEventListener(Event.RESIZE, this.onScreenResize);
          stage.dispatchEvent(new Event(Event.RESIZE));
          Parameters.DamageCounter = [];
-         //777592
 
-            initializePCUI();
-         //777592
-         if(!TitleView.proximityChatChecker) {
-            VoiceChatService.getInstance().initialize();
-            TitleView.proximityChatChecker = true;
-         }
+
+
+
 
 
       }
@@ -582,8 +569,7 @@ public class GameSprite extends Sprite {
          if (proximityChatManager)
          {
             // Remove event listeners
-            proximityChatManager.removeEventListener(PCManager.CHAT_READY, onChatReady);
-            proximityChatManager.removeEventListener(PCManager.CONTENT_SCROLLED, onChatScrolled);
+
 
             // Remove from display list
             if (proximityChatManager.parent)
@@ -598,7 +584,7 @@ public class GameSprite extends Sprite {
             proximityChatManager = null;
          }
       }
-//777592
+
 
 
 

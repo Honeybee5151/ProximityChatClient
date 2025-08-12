@@ -2,4 +2,5 @@ Hello it is me Shangapallia again. Here we have a proximity chat for rotmg-pserv
 So for the main batch of files the navigation is src -> kabam -> rotmg -> ProximityChat.
 
 
-//777592 is the navigation code.
+//777592 is the navigation code. Basically every (should be every) new code section in files other than the batch
+have the code before so that you can easily find what is needed to implement.
