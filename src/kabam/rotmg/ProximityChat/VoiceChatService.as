@@ -90,7 +90,19 @@ public class VoiceChatService {
     public function getPlayerID():String {
         return myPlayerID;
     }
+    public function setPushToTalkMode(enabled:Boolean):void {
+        if (audioBridge) {
+            audioBridge.setPushToTalkMode(enabled);
+            trace("VoiceChatService: Push-to-talk mode:", enabled);
+        }
+    }
 
+    public function setPushToTalkKeyState(pressed:Boolean):void {
+        if (audioBridge) {
+            audioBridge.setPushToTalkKeyState(pressed);
+            trace("VoiceChatService: Push-to-talk key state:", pressed);
+        }
+    }
     public function initialize():void {
         if (isInitialized) {
             trace("VoiceChatService: Already initialized");

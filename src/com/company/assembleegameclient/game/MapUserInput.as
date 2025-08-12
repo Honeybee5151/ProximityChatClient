@@ -19,7 +19,10 @@ import flash.geom.Point;
 import flash.system.Capabilities;
 import flash.utils.Timer;
 
+import kabam.rotmg.ProximityChat.PCBridge;
+
 import kabam.rotmg.ProximityChat.PCManager;
+import kabam.rotmg.ProximityChat.VoiceChatService;
 import kabam.rotmg.application.api.ApplicationSetup;
 import kabam.rotmg.constants.GeneralConstants;
 import kabam.rotmg.constants.UseType;
@@ -69,6 +72,9 @@ public class MapUserInput
    public var layers:Layers;
    //777592
    public static var PCUIChecker:Boolean = false;
+   public static var PCUITChecker:Boolean = false;
+   public var pcBridge:PCBridge;
+
 
    public function MapUserInput(gs:GameSprite)
    {
@@ -519,6 +525,13 @@ public class MapUserInput
          case Parameters.data_.partyJoinWorld:
             this.gs_.gsc_.playerText("/pjoin");
             break;
+         case Parameters.data_.PCTALK:
+            trace("MapUserInput: PCTALK key DOWN, PCUITChecker:", PCUITChecker);
+            if (PCUITChecker) {
+               trace("MapUserInput: Calling setPushToTalkKeyState(true)");
+               VoiceChatService.getInstance().setPushToTalkKeyState(true);
+            }
+            break;
       }
       this.setPlayerMovement();
    }
@@ -567,6 +580,19 @@ public class MapUserInput
                   gs_.proximityChatManager = null;
                }
                PCUIChecker = false; // Reset the checker so it can be created again
+            }
+            break;
+         case Parameters.data_.PCUIT:
+            PCUITChecker = !PCUITChecker;
+            trace("MapUserInput: PCUIT pressed, PCUITChecker now:", PCUITChecker);
+            VoiceChatService.getInstance().setPushToTalkMode(PCUITChecker);
+            break;
+
+         case Parameters.data_.PCTALK:
+            trace("MapUserInput: PCTALK key down, PCUITChecker:", PCUITChecker);
+            if (PCUITChecker) {
+               trace("MapUserInput: Calling setPushToTalkKeyState(true)");
+               VoiceChatService.getInstance().setPushToTalkKeyState(false);
             }
             break;
          case Parameters.data_.useSpecial:

@@ -12,6 +12,8 @@ public class PCBridge {
     public var audioProcess:NativeProcess;
     public var proximityChatManager:PCManager; // Fixed class name
     private var availableMicrophones:Array;
+    private var pushToTalkEnabled:Boolean = false;
+    private var pushToTalkKeyPressed:Boolean = false;
 
 
     public function PCBridge(manager:PCManager = null) {
@@ -226,7 +228,15 @@ public class PCBridge {
     }
 
     public function startMicrophone():void {
-        sendCommand("START_MIC");
+        if (pushToTalkEnabled) {
+            // Only start if push-to-talk key is pressed
+            if (pushToTalkKeyPressed) {
+                sendCommand("START_MIC");
+            }
+        } else {
+            // Normal toggle mode
+            sendCommand("START_MIC");
+        }
     }
 
     public function stopMicrophone():void {
@@ -236,7 +246,29 @@ public class PCBridge {
     public function selectMicrophone(micId:String):void {
         sendCommand("SELECT_MIC:" + micId);
     }
+    public function setPushToTalkMode(enabled:Boolean):void {
+        pushToTalkEnabled = enabled;
 
+        // If enabling push-to-talk, stop any currently running mic
+        if (enabled) {
+            stopMicrophone();
+        }
+
+        trace("PCBridge: Push-to-talk mode:", enabled);
+    }
+    public function setPushToTalkKeyState(pressed:Boolean):void {
+        if (!pushToTalkEnabled) return;
+
+        pushToTalkKeyPressed = pressed;
+
+        if (pressed) {
+            sendCommand("START_MIC");
+            trace("PCBridge: Push-to-talk key pressed - starting mic");
+        } else {
+            sendCommand("STOP_MIC");
+            trace("PCBridge: Push-to-talk key released - stopping mic");
+        }
+    }
     private function updateMicrophoneList(jsonString:String):void {
         // Parse JSON and update your Algorithm tab UI
         // You'll need to implement a dropdown in your Algorithm tab background

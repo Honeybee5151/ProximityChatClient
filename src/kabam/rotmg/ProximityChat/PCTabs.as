@@ -1,5 +1,7 @@
 package kabam.rotmg.ProximityChat
 {
+import com.company.assembleegameclient.game.MapUserInput;
+
 import flash.display.Sprite;
 import flash.display.Shape;
 import flash.display.Graphics;
@@ -165,23 +167,46 @@ public class PCTabs extends Sprite {
 
             // ADD EVENT LISTENER HERE:
             micSelector.addEventListener(PCMicSelector.MIC_SELECTED, onMicrophoneSelected);
+
             var volumeSlider:PCVolumeSlider = new PCVolumeSlider(280, 25);
-        volumeSlider.x = 10;
-        volumeSlider.y = 75; // Position below mic selector
+            volumeSlider.x = 10;
+            volumeSlider.y = 75; // Position below mic selector
 
-        // Load saved volume setting
-        var savedVolume:Number = PCSettings.getInstance().getIncomingVolume();
-        volumeSlider.value = savedVolume;
+            // Load saved volume setting
+            var savedVolume:Number = PCSettings.getInstance().getIncomingVolume();
+            volumeSlider.value = savedVolume;
 
-        background.addChild(volumeSlider);
+            background.addChild(volumeSlider);
 
-        // Store volume slider reference
-        backgroundMicSelectors[background + "_volume"] = volumeSlider;
+            // Store volume slider reference
+            backgroundMicSelectors[background + "_volume"] = volumeSlider;
 
-        // Add event listener for volume changes
-        volumeSlider.addEventListener(PCVolumeSlider.VOLUME_CHANGED, onVolumeChanged);
+            // Add event listener for volume changes
+            volumeSlider.addEventListener(PCVolumeSlider.VOLUME_CHANGED, onVolumeChanged);
+
+            // ADD PUSH-TO-TALK BUTTON HERE:
+            var pushToTalkButton:PCPushToTalkButton = new PCPushToTalkButton(280, 25);
+            pushToTalkButton.x = 10;
+            pushToTalkButton.y = 110; // Position below volume slider
+            background.addChild(pushToTalkButton);
+
+            // Store push-to-talk button reference
+            backgroundMicSelectors[background + "_pushToTalk"] = pushToTalkButton;
+
+            // Add event listener for push-to-talk changes
+            pushToTalkButton.addEventListener(PCPushToTalkButton.PUSH_TO_TALK_TOGGLED, onPushToTalkToggled);
+        }
     }
 
+    private function onPushToTalkToggled(e:Event):void {
+        var button:PCPushToTalkButton = e.target as PCPushToTalkButton;
+        var enabled:Boolean = button.pushToTalkEnabled;
+
+        // Sync the global variable
+        MapUserInput.PCUITChecker = enabled;
+
+        VoiceChatService.getInstance().setPushToTalkMode(enabled);
+        dispatchEvent(new Event("pushToTalkToggled"));
     }
     private function onVolumeChanged(e:Event):void {
         var slider:PCVolumeSlider = e.target as PCVolumeSlider;
@@ -363,7 +388,11 @@ public class PCTabs extends Sprite {
             volumeSlider.dispose();
         }
 
-
+        var pushToTalkButton:PCPushToTalkButton = backgroundMicSelectors[background + "_pushToTalk"];
+        if (pushToTalkButton) {
+            pushToTalkButton.removeEventListener(PCPushToTalkButton.PUSH_TO_TALK_TOGGLED, onPushToTalkToggled);
+            pushToTalkButton.dispose();
+        }
         // Clear collections
         tabs = null;
         tabBackgrounds = null;

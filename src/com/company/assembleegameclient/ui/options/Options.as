@@ -369,6 +369,7 @@ public class Options extends Sprite
       this.addOption(new ChoiceOption("inventorySwap",new <String>["On","Off"],[true,false],"Switch item to/from backpack.","Hold the " + key + " key and click on an item to swap it between your inventory and your backpack.",null));
       //777592
       this.addOption(new KeyMapper("PCUI", "Toggle PCUI", "Use this to toggle the Proxmity Chat UI"));
+      this.addOption(new KeyMapper("PCTALK", "Push to Talk", "Set the push to talk button"));
    }
 
    private function addChatOptions() : void

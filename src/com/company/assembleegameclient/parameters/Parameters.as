@@ -181,6 +181,8 @@ public class Parameters {
         setDefault("ProximityToggle", false);
         //777592
         setDefaultKey("PCUI", KeyCodes.UNSET);
+        setDefaultKey("PCTALK", KeyCodes.UNSET);
+
     }
 
     private static function setDefaultKey(keyName:String, key:uint):void {
