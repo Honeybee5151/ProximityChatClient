@@ -599,6 +599,7 @@ public class MapUserInput
                }
                PCUIChecker = false; // Reset the checker so it can be created again
             }
+                 stage.focus = null;
             break;
               //777592
          case Parameters.data_.PCUIT:
