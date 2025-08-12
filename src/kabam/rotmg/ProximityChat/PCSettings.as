@@ -12,7 +12,7 @@ public class PCSettings extends EventDispatcher
 {
     private static var _instance:PCSettings;
     private var _sharedObject:SharedObject;
-
+    private static const INCOMING_VOLUME:String = "incomingVolume";
     // Setting keys
     private static const SELECTED_MIC_ID:String = "selectedMicrophoneId";
     private static const SELECTED_MIC_NAME:String = "selectedMicrophoneName";
@@ -23,6 +23,8 @@ public class PCSettings extends EventDispatcher
     public static const SETTINGS_LOADED:String = "settingsLoaded";
     public static const SETTINGS_SAVED:String = "settingsSaved";
     public static const MIC_SELECTION_CHANGED:String = "micSelectionChanged";
+
+
 
     public function PCSettings()
     {
@@ -60,7 +62,40 @@ public class PCSettings extends EventDispatcher
             _sharedObject = null;
         }
     }
+    public function saveIncomingVolume(volume:Number):void
+    {
+        if (!_sharedObject)
+        {
+            return;
+        }
 
+        try
+        {
+            _sharedObject.data[INCOMING_VOLUME] = volume;
+            _sharedObject.flush();
+
+            trace("PCSettings: Saved incoming volume:", volume);
+
+            dispatchEvent(new Event(SETTINGS_SAVED));
+        }
+        catch (error:Error)
+        {
+            trace("PCSettings: Failed to save incoming volume:", error.message);
+        }
+    }
+
+    /**
+     * Get saved incoming volume (defaults to 1.0 = 100%)
+     */
+    public function getIncomingVolume():Number
+    {
+        if (!_sharedObject || _sharedObject.data[INCOMING_VOLUME] === undefined)
+        {
+            return 1.0; // Default to full volume
+        }
+
+        return _sharedObject.data[INCOMING_VOLUME] as Number;
+    }
     /**
      * Save the selected microphone information
      */

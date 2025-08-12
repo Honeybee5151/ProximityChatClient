@@ -202,10 +202,18 @@ public class PCMicSelector extends Sprite {
         isDropdownOpen = !isDropdownOpen;
         dropdown.visible = isDropdownOpen;
 
-        // Remove the stage listener - we don't want to close on any click
-        // if (isDropdownOpen && stage) {
-        //     stage.addEventListener(MouseEvent.CLICK, onStageClick);
-        // }
+        // ADD THIS - Bring dropdown to front when opened
+        if (isDropdownOpen) {
+            // Move the dropdown to the top of the display list
+            if (dropdown.parent) {
+                dropdown.parent.setChildIndex(dropdown, dropdown.parent.numChildren - 1);
+            }
+
+            // Also move the entire PCMicSelector to front of its parent
+            if (this.parent) {
+                this.parent.setChildIndex(this, this.parent.numChildren - 1);
+            }
+        }
     }
     private function closeDropdown():void {
         isDropdownOpen = false;

@@ -11,8 +11,7 @@ import flash.text.TextFieldAutoSize;
 import flash.utils.Dictionary;
 
 
-public class PCTabs extends Sprite
-{
+public class PCTabs extends Sprite {
     // Tab configuration
     private var _tabWidth:Number;
     private var _tabHeight:Number;
@@ -59,14 +58,12 @@ public class PCTabs extends Sprite
     private var backgroundMicSelectors:Dictionary = new Dictionary()
 
 
-
-    public function PCTabs (
+    public function PCTabs(
             x:Number = 0,
             y:Number = 0,
             tabWidth:Number = DEFAULT_TAB_WIDTH,
             tabHeight:Number = DEFAULT_TAB_HEIGHT
-    )
-    {
+    ) {
         this._x = x;
         this._y = y;
         this._tabWidth = tabWidth;
@@ -88,8 +85,7 @@ public class PCTabs extends Sprite
 
     }
 
-    private function initialize():void
-    {
+    private function initialize():void {
         // Position the tabs container
         this.x = _x;
         this.y = _y;
@@ -109,8 +105,7 @@ public class PCTabs extends Sprite
         setActiveTab(0, false);
     }
 
-    private function createTabs():void
-    {
+    private function createTabs():void {
         // Create "Blocked" tab
         blockedTab = new TabButton("Blocked", _tabWidth, _tabHeight);
         blockedTab.x = 0;
@@ -130,8 +125,8 @@ public class PCTabs extends Sprite
         // Apply styling to all tabs
         updateTabStyling();
     }
-    private function createBackgrounds():void
-    {
+
+    private function createBackgrounds():void {
         // Create background for "Blocked" tab
         blockedBackground = new Sprite();
         createBackgroundContent(blockedBackground, 0x1a1a2a, "Blocked people");
@@ -142,11 +137,12 @@ public class PCTabs extends Sprite
         createBackgroundContent(algorithmBackground, 0x2a1a1a, "Adjust stuff");
         tabBackgrounds.push(algorithmBackground);
     }
+
     public function getMicSelectorForBackground(background:Sprite):PCMicSelector {
         return backgroundMicSelectors[background];
     }
-    private function createBackgroundContent(background:Sprite, color:uint, labelText:String):void
-    {
+
+    private function createBackgroundContent(background:Sprite, color:uint, labelText:String):void {
         var label:TextField = new TextField();
         label.text = labelText;
         label.textColor = 0xcccccc;
@@ -167,9 +163,38 @@ public class PCTabs extends Sprite
 
             // ADD EVENT LISTENER HERE:
             micSelector.addEventListener(PCMicSelector.MIC_SELECTED, onMicrophoneSelected);
-        }
+            var volumeSlider:PCVolumeSlider = new PCVolumeSlider(280, 25);
+        volumeSlider.x = 10;
+        volumeSlider.y = 75; // Position below mic selector
 
+        // Load saved volume setting
+        var savedVolume:Number = PCSettings.getInstance().getIncomingVolume();
+        volumeSlider.value = savedVolume;
 
+        background.addChild(volumeSlider);
+
+        // Store volume slider reference
+        backgroundMicSelectors[background + "_volume"] = volumeSlider;
+
+        // Add event listener for volume changes
+        volumeSlider.addEventListener(PCVolumeSlider.VOLUME_CHANGED, onVolumeChanged);
+    }
+
+    }
+    private function onVolumeChanged(e:Event):void {
+        var slider:PCVolumeSlider = e.target as PCVolumeSlider;
+        var volume:Number = slider.value;
+
+        trace("PCTabs: Volume changed to:", volume);
+
+        // Update PCServerBridge with new volume
+        PCServerBridge.setIncomingVolume(volume);
+
+        // Save to PCSettings for persistence
+        PCSettings.getInstance().saveIncomingVolume(volume);
+
+        // Forward event to PCManager
+        dispatchEvent(new Event("volumeChanged"));
     }
     private function onMicrophoneSelected(e:Event):void {
         // Forward the event to PCManager
@@ -330,6 +355,12 @@ public class PCTabs extends Sprite
                 micSelector.dispose(); // ADD THIS LINE
             }
         }
+        var volumeSlider:PCVolumeSlider = backgroundMicSelectors[background + "_volume"];
+        if (volumeSlider) {
+            volumeSlider.removeEventListener(PCVolumeSlider.VOLUME_CHANGED, onVolumeChanged);
+            volumeSlider.dispose();
+        }
+
 
         // Clear collections
         tabs = null;
