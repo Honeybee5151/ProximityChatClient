@@ -105,37 +105,39 @@ public class PCTabs extends Sprite {
         setActiveTab(0, false);
     }
 
-    private function createTabs():void {
-        // Create "Blocked" tab
-        blockedTab = new TabButton("Blocked", _tabWidth, _tabHeight);
-        blockedTab.x = 0;
-        blockedTab.y = 0;
-        blockedTab.addEventListener(MouseEvent.CLICK, onBlockedTabClick);
-        addChild(blockedTab);
-        tabs.push(blockedTab);
-
-        // Create "Algorithm" tab
+    private function createTabs():void
+    {
+        // Create "Adjust" tab FIRST (most used)
         algorithmTab = new TabButton("Adjust", _tabWidth, _tabHeight);
-        algorithmTab.x = _tabWidth + _tabSpacing;
+        algorithmTab.x = 0; // Move to first position
         algorithmTab.y = 0;
         algorithmTab.addEventListener(MouseEvent.CLICK, onAlgorithmTabClick);
         addChild(algorithmTab);
         tabs.push(algorithmTab);
 
+        // Create "Blocked" tab SECOND
+        blockedTab = new TabButton("Blocked", _tabWidth, _tabHeight);
+        blockedTab.x = _tabWidth + _tabSpacing; // Move to second position
+        blockedTab.y = 0;
+        blockedTab.addEventListener(MouseEvent.CLICK, onBlockedTabClick);
+        addChild(blockedTab);
+        tabs.push(blockedTab);
+
         // Apply styling to all tabs
         updateTabStyling();
     }
 
-    private function createBackgrounds():void {
-        // Create background for "Blocked" tab
+    private function createBackgrounds():void
+    {
+        // Create background for "Adjust" tab FIRST (index 0)
+        algorithmBackground = new Sprite();
+        createBackgroundContent(algorithmBackground, 0x2a1a1a, "Adjust stuff");
+        tabBackgrounds.push(algorithmBackground);
+
+        // Create background for "Blocked" tab SECOND (index 1)
         blockedBackground = new Sprite();
         createBackgroundContent(blockedBackground, 0x1a1a2a, "Blocked people");
         tabBackgrounds.push(blockedBackground);
-
-        // Create background for "Algorithm" tab
-        algorithmBackground = new Sprite();  // Change back to regular Sprite
-        createBackgroundContent(algorithmBackground, 0x2a1a1a, "Adjust stuff");
-        tabBackgrounds.push(algorithmBackground);
     }
 
     public function getMicSelectorForBackground(background:Sprite):PCMicSelector {
@@ -204,12 +206,12 @@ public class PCTabs extends Sprite {
     // Event handlers
     private function onBlockedTabClick(e:MouseEvent):void
     {
-        setActiveTab(0);
+        setActiveTab(1);
     }
 
     private function onAlgorithmTabClick(e:MouseEvent):void
     {
-        setActiveTab(1);
+        setActiveTab(0);
     }
 
     // Public methods
