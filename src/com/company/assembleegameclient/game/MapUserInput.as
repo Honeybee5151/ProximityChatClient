@@ -17,7 +17,9 @@ import flash.events.MouseEvent;
 import flash.events.TimerEvent;
 import flash.geom.Point;
 import flash.system.Capabilities;
+import flash.text.TextField;
 import flash.utils.Timer;
+import flash.text.TextFieldType;
 
 import kabam.rotmg.ProximityChat.PCBridge;
 
@@ -527,8 +529,12 @@ public class MapUserInput
             break;
               //777592
          case Parameters.data_.PCTALK:
-            if(stage.focus != null) {
-               return; // Don't process when typing
+            if(stage.focus != null && stage.focus is TextField) {
+               var textField:TextField = stage.focus as TextField;
+               // Only block if it's an input field (has type INPUT)
+               if (textField.type == TextFieldType.INPUT) {
+                  return;
+               }
             }
             trace("MapUserInput: PCTALK key DOWN, PCUITChecker:", PCUITChecker);
             if (PCUITChecker) {
@@ -565,8 +571,12 @@ public class MapUserInput
             break;
               //777592
          case Parameters.data_.PCUI:
-            if(stage.focus != null) {
-               return; // Don't process when typing
+            if(stage.focus != null && stage.focus is TextField) {
+               var textField:TextField = stage.focus as TextField;
+               // Only block if it's an input field (has type INPUT)
+               if (textField.type == TextFieldType.INPUT) {
+                  return;
+               }
             }
             if(!PCUIChecker) {
                gs_.initializePCUI();
@@ -592,8 +602,13 @@ public class MapUserInput
             break;
               //777592
          case Parameters.data_.PCUIT:
-            if(stage.focus != null) {
-               return; // Don't process when typing}
+
+            if(stage.focus != null && stage.focus is TextField) {
+               var textField:TextField = stage.focus as TextField;
+               // Only block if it's an input field (has type INPUT)
+               if (textField.type == TextFieldType.INPUT) {
+                  return;
+               }
             }
             PCUITChecker = !PCUITChecker;
             trace("MapUserInput: PCUIT pressed, PCUITChecker now:", PCUITChecker);
@@ -601,8 +616,13 @@ public class MapUserInput
             break;
 //777592
          case Parameters.data_.PCTALK:
-            if(stage.focus != null) {
-               return; // Don't process when typing
+
+            if(stage.focus != null && stage.focus is TextField) {
+               var textField:TextField = stage.focus as TextField;
+               // Only block if it's an input field (has type INPUT)
+               if (textField.type == TextFieldType.INPUT) {
+                  return;
+               }
             }
             trace("MapUserInput: PCTALK key down, PCUITChecker:", PCUITChecker);
             if (PCUITChecker) {

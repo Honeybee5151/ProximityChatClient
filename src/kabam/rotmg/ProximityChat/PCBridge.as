@@ -255,9 +255,12 @@ public class PCBridge {
             trace("PCBridge: Stopped microphone for push-to-talk mode");
 
             // Update the UI to show mic is OFF
+            //if (proximityChatManager) {
+           //     proximityChatManager.updateToggleState(false);
+           // }
 
 
-             VoiceChatService.getInstance().setChatEnabled(false);
+             VoiceChatService.getInstance().setChatEnabled(false); // REMOVE THIS LINE
 
         } else {
             // When disabling push-to-talk, restore normal toggle mode
