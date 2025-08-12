@@ -11,3 +11,5 @@ Bugs:
 2. Sometimes when using push to talk, it gets stuck on, "On" when switching back to normal communcation, and when switch
 ing mic.
 3. The "On"/"Off", of push to talk is not that real time interactive.
+
+(MAYBE FIXED NOW)

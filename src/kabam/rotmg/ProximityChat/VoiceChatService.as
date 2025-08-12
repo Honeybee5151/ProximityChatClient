@@ -92,7 +92,11 @@ public class VoiceChatService {
     }
     public function setPushToTalkMode(enabled:Boolean):void {
         if (audioBridge) {
-            audioBridge.setPushToTalkMode(enabled);
+            if (!enabled) {
+                // Fix Bug 2: Reset stuck key when disabling PTT
+                audioBridge.setPushToTalkKeyState(false);
+            }
+            audioBridge.sendCommand("SET_PTT_MODE:" + enabled);
             trace("VoiceChatService: Push-to-talk mode:", enabled);
         }
     }
@@ -194,6 +198,7 @@ public class VoiceChatService {
     // UPDATED: Modified to save to settings
     public function selectMicrophone(microphoneId:String):void {
         if (audioBridge) {
+            audioBridge.setPushToTalkKeyState(false);
             trace("VoiceChatService: Selecting microphone:", microphoneId);
             audioBridge.selectMicrophone(microphoneId);
 

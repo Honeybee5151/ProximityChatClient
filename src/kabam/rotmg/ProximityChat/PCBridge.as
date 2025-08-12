@@ -1,6 +1,7 @@
 package kabam.rotmg.ProximityChat {
 import flash.desktop.NativeProcess;
 import flash.desktop.NativeProcessStartupInfo;
+import flash.events.EventDispatcher;
 import flash.events.NativeProcessExitEvent;
 import flash.filesystem.File;
 import flash.events.ProgressEvent;
@@ -8,12 +9,13 @@ import flash.events.Event;
 import flash.utils.ByteArray;
 import flash.utils.setTimeout;
 
-public class PCBridge {
+public class PCBridge extends EventDispatcher  {
     public var audioProcess:NativeProcess;
     public var proximityChatManager:PCManager; // Fixed class name
     private var availableMicrophones:Array;
     private var pushToTalkEnabled:Boolean = false;
     private var pushToTalkKeyPressed:Boolean = false;
+    public static const PTT_STATE_CHANGED:String = "PTT_STATE_CHANGED";
 
 
     public function PCBridge(manager:PCManager = null) {
@@ -272,17 +274,11 @@ public class PCBridge {
 
 
     public function setPushToTalkKeyState(pressed:Boolean):void {
-        if (!pushToTalkEnabled) return;
+        // Send to C# program
+        sendCommand("SET_PTT_KEY:" + pressed);
 
-        pushToTalkKeyPressed = pressed;
-
-        if (pressed) {
-            sendCommand("START_MIC");
-            trace("PCBridge: Push-to-talk key pressed - starting mic");
-        } else {
-            sendCommand("STOP_MIC");
-            trace("PCBridge: Push-to-talk key released - stopping mic");
-        }
+        // Dispatch event for UI updates
+        dispatchEvent(new PTTStateEvent(PTT_STATE_CHANGED, pressed));
     }
     private function updateMicrophoneList(jsonString:String):void {
         // Parse JSON and update your Algorithm tab UI
