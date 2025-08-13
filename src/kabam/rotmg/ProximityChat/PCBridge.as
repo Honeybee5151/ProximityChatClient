@@ -78,7 +78,7 @@ public class PCBridge extends EventDispatcher  {
 
     private function onOutputData(e:ProgressEvent):void {
         var output:String = audioProcess.standardOutput.readUTFBytes(audioProcess.standardOutput.bytesAvailable);
-        trace("PCBridge: *** RECEIVED FROM C# ***:", output);
+        //trace("PCBridge: *** RECEIVED FROM C# ***:", output);
         processAudioMessage(output);
     }
 
@@ -94,13 +94,13 @@ public class PCBridge extends EventDispatcher  {
 
     private function processAudioMessage(message:String):void {
         try {
-            trace("PCBridge: Raw message received:", message);
+           // trace("PCBridge: Raw message received:", message);
             var lines:Array = message.split('\n');
 
             for each (var line:String in lines) {
                 if (line.length == 0) continue;
 
-                trace("PCBridge: Processing line:", line); // Debug each line
+                //trace("PCBridge: Processing line:", line); // Debug each line
 
                 var parts:Array = line.split(':');
                 if (parts.length < 2) continue;
@@ -108,7 +108,7 @@ public class PCBridge extends EventDispatcher  {
 // Safe trace that won't crash
                 var command:String = parts[0] ? parts[0].toString() : "null";
                 var value:String = parts[1] ? parts[1].toString() : "null";
-                trace("PCBridge: Command:", command, "Value:", value);
+                //trace("PCBridge: Command:", command, "Value:", value);
 
                 switch (parts[0]) {
                     case "MIC_STATUS":
@@ -149,10 +149,10 @@ public class PCBridge extends EventDispatcher  {
                         break;
                     case "AUDIO_LEVEL":
                         var level:Number = parseFloat(parts[1]);
-                        trace("PCBridge: Audio level:", level);
-                        trace("PCBridge: proximityChatManager exists:", (proximityChatManager != null));
+                        //trace("PCBridge: Audio level:", level);
+                        //trace("PCBridge: proximityChatManager exists:", (proximityChatManager != null));
                         if (proximityChatManager) {
-                            trace("PCBridge: Calling updateVisualizerLevel with:", level);
+                           // trace("PCBridge: Calling updateVisualizerLevel with:", level);
                             proximityChatManager.updateVisualizerLevel(level);
                         } else {
                             trace("PCBridge: ERROR - proximityChatManager is null!");

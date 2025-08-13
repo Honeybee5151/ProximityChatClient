@@ -244,7 +244,7 @@ public class PCVisualiser extends Sprite
         _isActive = _audioLevel > 0.01;
 
         // ADD THIS DEBUG
-        trace("PCVisualiser: setAudioLevel called with:", level, "clamped to:", _audioLevel);
+       // trace("PCVisualiser: setAudioLevel called with:", level, "clamped to:", _audioLevel);
 
         dispatchEvent(new Event(LEVEL_CHANGED));
     }
