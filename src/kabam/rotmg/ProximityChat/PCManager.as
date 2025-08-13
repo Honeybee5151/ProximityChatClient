@@ -134,14 +134,17 @@ public class PCManager extends Sprite
         chatTabs.setTextColors(0xcccccc, 0xffffff);
         chatTabs.setBorderColor(0x666666);
 
+        var voiceService:VoiceChatService = VoiceChatService.getInstance();
+        var actualCurrentState:Boolean = voiceService.isEnabled; // Use the real current state
+
         chatToggle = new PCToggle(
-                _containerX + (80 * 2) + (2 * 1) + 2, // x position: to the right of Algorithm tab
-                _containerY - 35, // y position: same as tabs
-                35,  // width (smaller)
-                30,  // height (same as tabs)
-                "ON",   // on text (shorter)
-                "OFF",  // off text (shorter)
-                false // initial state (off)
+                _containerX + (80 * 2) + (2 * 1) + 2,
+                _containerY - 35,
+                35,
+                30,
+                "ON",
+                "OFF",
+                actualCurrentState // Use actual state instead of hardcoded false
         );
 
         addChild(chatToggle);

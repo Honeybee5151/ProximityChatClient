@@ -114,30 +114,44 @@ public class VoiceChatService {
     }
     public function initialize():void {
         if (isInitialized) {
-            trace("VoiceChatService: Already initialized");
             return;
         }
 
         trace("VoiceChatService: Initializing...");
 
-        // NEW: Initialize settings first
+        // Initialize settings first
         try {
             settings = PCSettings.getInstance();
             settings.addEventListener(PCSettings.SETTINGS_LOADED, onSettingsLoaded);
-            trace("VoiceChatService: Settings initialized successfully");
         } catch (error:Error) {
-            trace("VoiceChatService: Failed to initialize settings:", error.message);
             settings = null;
         }
 
+        // START AUDIO BRIDGE IMMEDIATELY - don't wait for PCManager
         if (!audioBridge) {
-            audioBridge = new PCBridge(null); // No UI dependency
+            audioBridge = new PCBridge(null); // No PCManager initially
             audioBridge.startAudioProgram();
+
+            // CONNECT TO VOICE SERVER if we already have auth data
+            if (hasVoiceAuth()) {
+                connectToVoiceServer();
+            }
+
+            // RESTORE SAVED SETTINGS even without UI
+            if (settings) {
+                // Apply saved chat enabled state
+                var savedChatEnabled:Boolean = settings.getChatEnabled();
+                if (savedChatEnabled) {
+                    startMicrophone();
+                    trace("VoiceChatService: Started microphone based on saved state (no UI)");
+                }
+
+                // Saved microphone will be applied when microphones are received
+            }
         }
 
         isInitialized = true;
     }
-
     // NEW: Settings loaded handler
     private function onSettingsLoaded(e:Event):void {
         trace("VoiceChatService: Settings loaded, checking for saved preferences");
@@ -303,25 +317,16 @@ public class VoiceChatService {
 
     // UPDATED: Store reference to current PCManager
     public function setProximityChatManager(manager:*):void {
-        currentPCManager = manager; // NEW: Store reference
+        currentPCManager = manager;
 
         if (audioBridge) {
             audioBridge.proximityChatManager = manager;
-            trace("VoiceChatService: Connected PCManager to bridge");
+            trace("VoiceChatService: Connected PCManager to existing bridge");
 
-            // NEW: If settings are loaded and we have a saved chat state, apply it
-            if (settings) {
-                var savedChatEnabled:Boolean = settings.getChatEnabled();
-                if (savedChatEnabled) {
-                    // Actually start the microphone, not just update UI
-                    startMicrophone();
-                    trace("VoiceChatService: Started microphone for new PCManager based on saved state");
-                }
-                manager.updateToggleState(savedChatEnabled);
-                trace("VoiceChatService: Applied saved chat state to new PCManager:", savedChatEnabled);
+            // If we're already connected to voice server, update the UI
+            if (isVoiceConnected) {
+                manager.updateToggleState(true); // or whatever the current state should be
             }
-        } else {
-            trace("VoiceChatService: Bridge not available yet");
         }
     }
 
