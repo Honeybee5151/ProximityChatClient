@@ -214,6 +214,7 @@ import robotlegs.bender.framework.api.ILogger;
 
 import kabam.rotmg.game.model.PotionInventoryModel;
 import kabam.rotmg.ProximityChat.VoiceChatService;
+import kabam.rotmg.messaging.impl.incoming.ProximityVoice;
 public class GameServerConnection
    {
 
@@ -509,7 +510,9 @@ public class GameServerConnection
          messages.map(BREAKDOWN_SLOT).toMessage(BreakdownSlot);
          messages.map(IMMINENT_ARENA_WAVE).toMessage(ImminentArenaWave).toMethod(this.onImminentArenaWave);
          //777592
-         messages.map(PROXIMITY_VOICE).toMessage(Message).toMethod(this.onProximityVoice); // Add this line
+         messages.map(PROXIMITY_VOICE).toMessage(ProximityVoice).toMethod(this.onProximityVoice);
+
+
       }
 
       private function unmapMessages() : void {
@@ -1879,25 +1882,25 @@ public class GameServerConnection
          return this.server_.address;
       }
       //777592
-      private function onProximityVoice(message:Message):void {
+      private function onProximityVoice(proximityVoice:ProximityVoice):void {
          try {
-            // Read the JSON data from the packet
-            var reader:IDataInput = message as IDataInput;
-            var jsonData:String = reader.readUTF();
+            trace("=== PROXIMITY VOICE DEBUG ===");
+            trace("Received JSON data:", proximityVoice.jsonData_);
 
-            trace("Received proximity voice packet:", jsonData);
+            if (!proximityVoice.jsonData_) {
+               trace("No JSON data received");
+               return;
+            }
 
-            var voiceInfo:Object = JSON.parse(jsonData);
+            var voiceInfo:Object = JSON.parse(proximityVoice.jsonData_);
 
-            // Extract voice data
             var playerId:String = voiceInfo.PlayerId;
-            var audioData:String = voiceInfo.AudioData; // Base64 encoded
-            var volume:Number = voiceInfo.Volume;
+            var audioData:String = voiceInfo.AudioData;
+            var volume:Number = voiceInfo.Volume || 1.0;
             var distance:Number = voiceInfo.Distance || 0;
 
             trace("Playing voice from player:", playerId, "volume:", volume, "distance:", distance);
 
-            // Send to your PCServerBridge
             PCServerBridge.getInstance().handleIncomingVoice(playerId, audioData, volume);
 
          } catch (error:Error) {

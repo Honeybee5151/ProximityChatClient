@@ -120,7 +120,7 @@ public class PCTabs extends Sprite {
         tabs.push(algorithmTab);
 
         // Create "Blocked" tab SECOND
-        blockedTab = new TabButton("Unused", _tabWidth, _tabHeight);
+        blockedTab = new TabButton("Priority", _tabWidth, _tabHeight);
         blockedTab.x = _tabWidth + _tabSpacing; // Move to second position
         blockedTab.y = 0;
         blockedTab.addEventListener(MouseEvent.CLICK, onBlockedTabClick);
@@ -140,7 +140,7 @@ public class PCTabs extends Sprite {
 
         // Create background for "Blocked" tab SECOND (index 1)
         blockedBackground = new Sprite();
-        createBackgroundContent(blockedBackground, 0x1a1a2a, "Unused tab");
+        createBackgroundContent(blockedBackground, 0x1a1a2a, "Choose how, when and who has priority in groups");
         tabBackgrounds.push(blockedBackground);
     }
 

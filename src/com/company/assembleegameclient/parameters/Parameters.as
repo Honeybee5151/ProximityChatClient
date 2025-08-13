@@ -10,7 +10,7 @@ public class Parameters {
     public static const GAME_VERSION:String = "3.0.0";
     public static const PORT:int = 2050;
     public static const TESTING_PORT:int = 2059;
-    public static const LOCAL_HOST:Boolean = false;
+    public static const LOCAL_HOST:Boolean = true;
     public static const TESTING_SERVER:Boolean = false;
     public static const FELLOW_GUILD_COLOR:uint = 10944349;
     public static const PARTY_MEMBER_COLOR:uint = 0xffc0cb;

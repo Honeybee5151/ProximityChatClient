@@ -179,7 +179,7 @@ public class PCVisualiser extends Sprite
     {
         // ADD THIS DEBUG (but maybe only occasionally)
         if (Math.random() < 0.1) { // Only 10% of the time to avoid spam
-            trace("PCVisualiser: Timer update - audioLevel:", _audioLevel, "smoothed:", _smoothedLevel);
+           // trace("PCVisualiser: Timer update - audioLevel:", _audioLevel, "smoothed:", _smoothedLevel);
         }
         // Smooth the audio level
         _smoothedLevel += (_audioLevel - _smoothedLevel) * _smoothing;

@@ -1,4 +1,12 @@
 package kabam.rotmg.ProximityChat {
+import com.hurlant.util.Base64;
+
+import flash.media.Sound;
+import flash.media.SoundChannel;
+import flash.media.SoundTransform;
+
+import flash.utils.ByteArray;
+
 public class PCServerBridge {
     private static var _instance:PCServerBridge;
     private static var _incomingVolume:Number = 1.0;
@@ -49,8 +57,23 @@ public class PCServerBridge {
     }
 
     private function playProximityAudio(playerId:String, audioData:String, volume:Number):void {
-        // Convert and play audio in ActionScript
-        // Implementation depends on your audio format
+        try {
+            // Decode the Base64 audio data
+            var audioBytes:ByteArray = Base64.decodeToByteArray(audioData);
+
+            // Create Sound object and load the audio data
+            var sound:Sound = new Sound();
+            sound.loadCompressedDataFromByteArray(audioBytes, audioBytes.length);
+
+            // Apply volume and play
+            var soundTransform:SoundTransform = new SoundTransform(volume);
+            var channel:SoundChannel = sound.play(0, 0, soundTransform);
+
+            trace("PCServerBridge: Successfully playing audio for player:", playerId, "volume:", volume);
+
+        } catch (error:Error) {
+            trace("PCServerBridge: Error playing audio:", error.message);
+        }
     }
 }
 }
