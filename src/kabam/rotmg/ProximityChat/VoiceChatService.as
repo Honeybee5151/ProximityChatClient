@@ -96,7 +96,12 @@ public class VoiceChatService {
                 // Fix Bug 2: Reset stuck key when disabling PTT
                 audioBridge.setPushToTalkKeyState(false);
             }
-            audioBridge.sendCommand("SET_PTT_MODE:" + enabled);
+            // CHANGE THIS LINE:
+            // audioBridge.sendCommand("SET_PTT_MODE:" + enabled);
+
+            // TO THIS:
+            audioBridge.setPushToTalkMode(enabled);  // ← Call directly instead of sending command
+
             trace("VoiceChatService: Push-to-talk mode:", enabled);
         }
     }

@@ -230,17 +230,22 @@ public class PCBridge extends EventDispatcher  {
     }
 
     public function startMicrophone():void {
+        // Always start the microphone regardless of PTT mode
+        sendCommand("START_MIC");
+        trace("PCBridge: Starting microphone");
+
+        // Set initial transmission state based on PTT mode
         if (pushToTalkEnabled) {
-            // Only start if push-to-talk key is pressed
             if (pushToTalkKeyPressed) {
-                sendCommand("START_MIC");
+                sendCommand("ENABLE_AUDIO_TRANSMISSION");
+            } else {
+                sendCommand("DISABLE_AUDIO_TRANSMISSION");
             }
         } else {
-            // Normal toggle mode
-            sendCommand("START_MIC");
+            // Normal mode - always allow transmission
+            sendCommand("ENABLE_AUDIO_TRANSMISSION");
         }
     }
-
     public function stopMicrophone():void {
         sendCommand("STOP_MIC");
     }
@@ -251,31 +256,34 @@ public class PCBridge extends EventDispatcher  {
     public function setPushToTalkMode(enabled:Boolean):void {
         pushToTalkEnabled = enabled;
 
-        // If enabling push-to-talk, stop any currently running mic
         if (enabled) {
-            stopMicrophone();
-            trace("PCBridge: Stopped microphone for push-to-talk mode");
-
-            // Update the UI to show mic is OFF
-            //if (proximityChatManager) {
-           //     proximityChatManager.updateToggleState(false);
-           // }
-
-
-             VoiceChatService.getInstance().setChatEnabled(false); // REMOVE THIS LINE
-
+            // Enable PTT mode - disable transmission unless key is pressed
+            if (!pushToTalkKeyPressed) {
+                sendCommand("DISABLE_AUDIO_TRANSMISSION");
+            }
+            trace("PCBridge: Push-to-talk mode enabled");
         } else {
-            // When disabling push-to-talk, restore normal toggle mode
-            trace("PCBridge: Push-to-talk disabled, normal toggle mode restored");
+            // Disable PTT mode - enable transmission
+            sendCommand("ENABLE_AUDIO_TRANSMISSION");
+            trace("PCBridge: Push-to-talk mode disabled - normal mode");
         }
-
-        trace("PCBridge: Push-to-talk mode:", enabled);
     }
 
 
     public function setPushToTalkKeyState(pressed:Boolean):void {
-        // Send to C# program
-        sendCommand("SET_PTT_KEY:" + pressed);
+        pushToTalkKeyPressed = pressed;
+
+        if (pushToTalkEnabled) {
+            if (pressed) {
+                // Key pressed - allow audio transmission
+                sendCommand("ENABLE_AUDIO_TRANSMISSION");
+                trace("PCBridge: PTT key pressed - enabling audio transmission");
+            } else {
+                // Key released - block audio transmission (but keep mic running)
+                sendCommand("DISABLE_AUDIO_TRANSMISSION");
+                trace("PCBridge: PTT key released - disabling audio transmission");
+            }
+        }
 
         // Dispatch event for UI updates
         dispatchEvent(new PTTStateEvent(PTT_STATE_CHANGED, pressed));
