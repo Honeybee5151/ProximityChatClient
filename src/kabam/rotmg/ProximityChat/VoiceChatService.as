@@ -352,7 +352,94 @@ public class VoiceChatService {
             }
         }
     }
+// Add these methods after your existing setIncomingVolume method
 
+    public function setPrioritySystemEnabled(enabled:Boolean):void {
+        if (audioBridge) {
+            audioBridge.sendCommand("SET_PRIORITY_ENABLED:" + enabled);
+            trace("VoiceChatService: Set priority system enabled:", enabled);
+        }
+
+        // Save to settings if you want persistence
+        if (settings) {
+            // You'll need to add this method to PCSettings later
+             settings.savePrioritySystemEnabled(enabled);
+        }
+    }
+
+    public function setPriorityActivationThreshold(threshold:int):void {
+        if (audioBridge) {
+            audioBridge.sendCommand("SET_PRIORITY_THRESHOLD:" + threshold);
+            trace("VoiceChatService: Set priority activation threshold:", threshold);
+        }
+
+        // Save to settings if you want persistence
+        if (settings) {
+            settings.savePriorityActivationThreshold(threshold);
+        }
+    }
+
+    public function setAutoPriorityGuild(enabled:Boolean):void {
+        if (audioBridge) {
+            audioBridge.sendCommand("SET_AUTO_PRIORITY_GUILD:" + enabled);
+            trace("VoiceChatService: Set auto priority for guild members:", enabled);
+        }
+
+        // Save to settings
+        if (settings) {
+            settings.saveAutoPriorityGuild(enabled);
+        }
+    }
+
+    public function setAutoPriorityLocked(enabled:Boolean):void {
+        if (audioBridge) {
+            audioBridge.sendCommand("SET_AUTO_PRIORITY_LOCKED:" + enabled);
+            trace("VoiceChatService: Set auto priority for locked players:", enabled);
+        }
+
+        // Save to settings
+        if (settings) {
+            settings.saveAutoPriorityLocked(enabled);
+        }
+    }
+
+    public function setNonPriorityVolume(volume:Number):void {
+        if (audioBridge) {
+            audioBridge.sendCommand("SET_NON_PRIORITY_VOLUME:" + volume);
+            trace("VoiceChatService: Set non-priority volume:", volume);
+        }
+
+        // Save to settings
+        if (settings) {
+            settings.saveNonPriorityVolume(volume);
+        }
+    }
+
+    public function setMaxPrioritySlots(slots:int):void {
+        if (audioBridge) {
+            audioBridge.sendCommand("SET_MAX_PRIORITY_SLOTS:" + slots);
+            trace("VoiceChatService: Set max priority slots:", slots);
+        }
+
+        // Save to settings
+        if (settings) {
+             settings.saveMaxPrioritySlots(slots);
+        }
+    }
+
+    public function addManualPriority(accountId:int):void {
+        if (audioBridge) {
+            audioBridge.sendCommand("ADD_MANUAL_PRIORITY:" + accountId);
+            trace("VoiceChatService: Added manual priority for account:", accountId);
+        }
+    }
+
+    public function removeManualPriority(accountId:int):void {
+        if (audioBridge) {
+            audioBridge.sendCommand("REMOVE_MANUAL_PRIORITY:" + accountId);
+            trace("VoiceChatService: Removed manual priority for account:", accountId);
+        }
+    }
     // UPDATED: Enhanced dispose with settings cleanup
     public function dispose(onComplete:Function = null):void {
         if (settings) {

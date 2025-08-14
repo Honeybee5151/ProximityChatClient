@@ -106,6 +106,7 @@ public class PCTabs extends Sprite {
         setActiveTab(0, false);
 
         loadSavedPushToTalkState();
+        loadSavedPrioritySettings();
     }
 
     private function createTabs():void {
@@ -249,39 +250,60 @@ public class PCTabs extends Sprite {
         }
     }
 
-    private function onActivationThresholdChanged(e:Event):void {
-        var slider:PCNumberSlider = e.target as PCNumberSlider;
-        var threshold:int = slider.actualValue;
 
-        trace("PCTabs: Priority system will activate when", threshold, "people are nearby");
 
-        // TODO: Save setting and send to VoiceChatService
-        // PCSettings.getInstance().savePriorityActivationThreshold(threshold);
-        // VoiceChatService.getInstance().setPriorityActivationThreshold(threshold);
+    // Add this method to PCTabs.as
+    private function loadSavedPrioritySettings():void {
+        var settings:PCSettings = PCSettings.getInstance();
+
+        // Load and apply saved priority toggle
+        var priorityToggle:PCGenericToggle = backgroundMicSelectors[blockedBackground + "_priorityToggle"];
+        if (priorityToggle) {
+            priorityToggle.isEnabled = settings.getPrioritySystemEnabled();
+        }
+
+        // Load and apply saved activation threshold
+        var thresholdSlider:PCNumberSlider = backgroundMicSelectors[blockedBackground + "_activationThreshold"];
+        if (thresholdSlider) {
+            thresholdSlider.actualValue = settings.getPriorityActivationThreshold();
+        }
+
+        // Load and apply saved non-priority volume
+        var nonPrioritySlider:PCVolumeSlider = backgroundMicSelectors[blockedBackground + "_nonPriorityVolume"];
+        if (nonPrioritySlider) {
+            nonPrioritySlider.value = settings.getNonPriorityVolume();
+        }
+
+        trace("PCTabs: Loaded saved priority settings");
     }
-
     private function onPriorityToggleChanged(e:Event):void {
         var toggle:PCGenericToggle = e.target as PCGenericToggle;
         var enabled:Boolean = toggle.isEnabled;
 
         trace("PCTabs: Priority system toggled to:", enabled);
 
-        // TODO: Save setting and send to VoiceChatService
-        // PCSettings.getInstance().savePrioritySystemEnabled(enabled);
-        // VoiceChatService.getInstance().setPrioritySystemEnabled(enabled);
+        // Use VoiceChatService instead of ExternalInterface
+        VoiceChatService.getInstance().setPrioritySystemEnabled(enabled);
+    }
+
+    private function onActivationThresholdChanged(e:Event):void {
+        var slider:PCNumberSlider = e.target as PCNumberSlider;
+        var threshold:int = slider.actualValue;
+
+        trace("PCTabs: Priority system will activate when", threshold, "people are nearby");
+
+        // Use VoiceChatService
+        VoiceChatService.getInstance().setPriorityActivationThreshold(threshold);
     }
 
     private function onAutoPriorityChanged(e:Event):void {
         var button:PCCycleButton = e.target as PCCycleButton;
 
         trace("PCTabs: Auto priority changed to:", button.currentStateText);
-        trace("PCTabs: Guild mode:", button.isGuildMode);
-        trace("PCTabs: Locked mode:", button.isLockedMode);
-        trace("PCTabs: Both mode:", button.isBothMode);
 
-        // TODO: Save setting and send to VoiceChatService
-        // PCSettings.getInstance().saveAutoPriorityMode(button.currentState);
-        // VoiceChatService.getInstance().setAutoPriorityMode(button.currentState);
+        // Use VoiceChatService
+        VoiceChatService.getInstance().setAutoPriorityGuild(button.isGuildMode);
+        VoiceChatService.getInstance().setAutoPriorityLocked(button.isLockedMode);
     }
 
     private function onNonPriorityVolumeChanged(e:Event):void {
@@ -290,24 +312,27 @@ public class PCTabs extends Sprite {
 
         trace("PCTabs: Non-priority volume changed to:", volume);
 
-        // TODO: Save setting and send to VoiceChatService
-        // PCSettings.getInstance().saveNonPriorityVolume(volume);
-        // VoiceChatService.getInstance().setNonPriorityVolume(volume);
+        // Use VoiceChatService
+        VoiceChatService.getInstance().setNonPriorityVolume(volume);
     }
 
     private function onMaxSlotsChanged(e:Event):void {
         var slider:PCVolumeSlider = e.target as PCVolumeSlider;
-        var slots:int = Math.round(slider.value * 45) + 5; // Scale 0-1 to 5-50
+        var slots:int = Math.round(slider.value * 45) + 5;
 
-        // Update the display to show slot count instead of percentage
         slider.setValueText(slots.toString() + " slots");
-
         trace("PCTabs: Max priority slots changed to:", slots);
 
-        // TODO: Save setting and send to VoiceChatService
-        // PCSettings.getInstance().saveMaxPrioritySlots(slots);
-        // VoiceChatService.getInstance().setMaxPrioritySlots(slots);
+        // Use VoiceChatService
+        VoiceChatService.getInstance().setMaxPrioritySlots(slots);
     }
+
+     // VoiceChatService.getInstance().setAutoPriorityMode(button.currentState);
+
+
+
+
+
 
     private function loadPrioritySettings(background:Sprite):void {
         // TODO: Load and apply saved priority settings when we add PCSettings methods
