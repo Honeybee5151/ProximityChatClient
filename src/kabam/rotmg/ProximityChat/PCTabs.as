@@ -1,5 +1,4 @@
-package kabam.rotmg.ProximityChat
-{
+package kabam.rotmg.ProximityChat {
 import com.company.assembleegameclient.game.MapUserInput;
 
 import flash.display.Sprite;
@@ -109,8 +108,7 @@ public class PCTabs extends Sprite {
         loadSavedPushToTalkState();
     }
 
-    private function createTabs():void
-    {
+    private function createTabs():void {
         // Create "Adjust" tab FIRST (most used)
         algorithmTab = new TabButton("Adjust", _tabWidth, _tabHeight);
         algorithmTab.x = 0; // Move to first position
@@ -131,8 +129,7 @@ public class PCTabs extends Sprite {
         updateTabStyling();
     }
 
-    private function createBackgrounds():void
-    {
+    private function createBackgrounds():void {
         // Create background for "Adjust" tab FIRST (index 0)
         algorithmBackground = new Sprite();
         createBackgroundContent(algorithmBackground, 0x2a1a1a, "Adjust stuff");
@@ -198,7 +195,123 @@ public class PCTabs extends Sprite {
 
             // Add event listener for push-to-talk changes
             pushToTalkButton.addEventListener(PCPushToTalkButton.PUSH_TO_TALK_TOGGLED, onPushToTalkToggled);
+        } else if (labelText == "Choose how, when and who has priority in groups") {
+            // Priority System Enable/Disable Toggle
+            var priorityToggle:PCGenericToggle = new PCGenericToggle("Priority System", "Enabled", "Disabled", 280, 25);
+            priorityToggle.x = 10;
+            priorityToggle.y = 40;
+            background.addChild(priorityToggle);
+            backgroundMicSelectors[background + "_priorityToggle"] = priorityToggle;
+            priorityToggle.addEventListener(PCGenericToggle.TOGGLE_CHANGED, onPriorityToggleChanged);
+
+            // Auto Priority Cycle Button (Guild/Locked/Both)
+            var autoPriorityButton:PCCycleButton = new PCCycleButton("Auto Priority", 280, 25);
+            autoPriorityButton.x = 10;
+            autoPriorityButton.y = 75;
+            background.addChild(autoPriorityButton);
+            backgroundMicSelectors[background + "_autoPriority"] = autoPriorityButton;
+            autoPriorityButton.addEventListener(PCCycleButton.STATE_CHANGED, onAutoPriorityChanged);
+
+            // Non-Priority Volume Slider
+            var nonPrioritySlider:PCVolumeSlider = new PCVolumeSlider(280, 25);
+            nonPrioritySlider.x = 10;
+            nonPrioritySlider.y = 110;
+            nonPrioritySlider.setLabelText("Non-Priority Volume:");
+            background.addChild(nonPrioritySlider);
+            backgroundMicSelectors[background + "_nonPriorityVolume"] = nonPrioritySlider;
+            nonPrioritySlider.addEventListener(PCVolumeSlider.VOLUME_CHANGED, onNonPriorityVolumeChanged);
+
+            // Max Priority Slots Slider (5-50 range)
+            var maxSlotsSlider:PCVolumeSlider = new PCVolumeSlider(280, 25);
+            maxSlotsSlider.x = 10;
+            maxSlotsSlider.y = 145;
+            maxSlotsSlider.setLabelText("Max Priority Slots:");
+            background.addChild(maxSlotsSlider);
+            backgroundMicSelectors[background + "_maxSlots"] = maxSlotsSlider;
+            maxSlotsSlider.addEventListener(PCVolumeSlider.VOLUME_CHANGED, onMaxSlotsChanged);
+
+// With this:
+            var activationThresholdSlider:PCNumberSlider = new PCNumberSlider(
+                    "Activate When", // label
+                    3,               // min value (activate when 3+ people nearby)
+                    30,              // max value (activate when 30+ people nearby)
+                    8,               // default value (activate when 8+ people nearby)
+                    " people",       // suffix
+                    280,             // width
+                    25               // height
+            );
+            activationThresholdSlider.x = 10;
+            activationThresholdSlider.y = 145;
+            background.addChild(activationThresholdSlider);
+            backgroundMicSelectors[background + "_activationThreshold"] = activationThresholdSlider;
+            activationThresholdSlider.addEventListener(PCNumberSlider.VALUE_CHANGED, onActivationThresholdChanged);
+
         }
+    }
+
+    private function onActivationThresholdChanged(e:Event):void {
+        var slider:PCNumberSlider = e.target as PCNumberSlider;
+        var threshold:int = slider.actualValue;
+
+        trace("PCTabs: Priority system will activate when", threshold, "people are nearby");
+
+        // TODO: Save setting and send to VoiceChatService
+        // PCSettings.getInstance().savePriorityActivationThreshold(threshold);
+        // VoiceChatService.getInstance().setPriorityActivationThreshold(threshold);
+    }
+
+    private function onPriorityToggleChanged(e:Event):void {
+        var toggle:PCGenericToggle = e.target as PCGenericToggle;
+        var enabled:Boolean = toggle.isEnabled;
+
+        trace("PCTabs: Priority system toggled to:", enabled);
+
+        // TODO: Save setting and send to VoiceChatService
+        // PCSettings.getInstance().savePrioritySystemEnabled(enabled);
+        // VoiceChatService.getInstance().setPrioritySystemEnabled(enabled);
+    }
+
+    private function onAutoPriorityChanged(e:Event):void {
+        var button:PCCycleButton = e.target as PCCycleButton;
+
+        trace("PCTabs: Auto priority changed to:", button.currentStateText);
+        trace("PCTabs: Guild mode:", button.isGuildMode);
+        trace("PCTabs: Locked mode:", button.isLockedMode);
+        trace("PCTabs: Both mode:", button.isBothMode);
+
+        // TODO: Save setting and send to VoiceChatService
+        // PCSettings.getInstance().saveAutoPriorityMode(button.currentState);
+        // VoiceChatService.getInstance().setAutoPriorityMode(button.currentState);
+    }
+
+    private function onNonPriorityVolumeChanged(e:Event):void {
+        var slider:PCVolumeSlider = e.target as PCVolumeSlider;
+        var volume:Number = slider.value;
+
+        trace("PCTabs: Non-priority volume changed to:", volume);
+
+        // TODO: Save setting and send to VoiceChatService
+        // PCSettings.getInstance().saveNonPriorityVolume(volume);
+        // VoiceChatService.getInstance().setNonPriorityVolume(volume);
+    }
+
+    private function onMaxSlotsChanged(e:Event):void {
+        var slider:PCVolumeSlider = e.target as PCVolumeSlider;
+        var slots:int = Math.round(slider.value * 45) + 5; // Scale 0-1 to 5-50
+
+        // Update the display to show slot count instead of percentage
+        slider.setValueText(slots.toString() + " slots");
+
+        trace("PCTabs: Max priority slots changed to:", slots);
+
+        // TODO: Save setting and send to VoiceChatService
+        // PCSettings.getInstance().saveMaxPrioritySlots(slots);
+        // VoiceChatService.getInstance().setMaxPrioritySlots(slots);
+    }
+
+    private function loadPrioritySettings(background:Sprite):void {
+        // TODO: Load and apply saved priority settings when we add PCSettings methods
+        trace("PCTabs: Loading priority settings...");
     }
 
     private function onPushToTalkToggled(e:Event):void {
@@ -216,6 +329,7 @@ public class PCTabs extends Sprite {
         VoiceChatService.getInstance().setPushToTalkMode(enabled);
         dispatchEvent(new Event("pushToTalkToggled"));
     }
+
     // In your PCTabs or PCManager initialization
     private function loadSavedPushToTalkState():void {
         var savedState:Boolean = PCSettings.getInstance().getPushToTalkEnabled();
@@ -235,6 +349,7 @@ public class PCTabs extends Sprite {
             trace("PCTabs: Loaded saved push-to-talk state:", savedState);
         }
     }
+
     private function onVolumeChanged(e:Event):void {
         var slider:PCVolumeSlider = e.target as PCVolumeSlider;
         var volume:Number = slider.value;
@@ -250,25 +365,23 @@ public class PCTabs extends Sprite {
         // Forward event to PCManager
         dispatchEvent(new Event("volumeChanged"));
     }
+
     private function onMicrophoneSelected(e:Event):void {
         // Forward the event to PCManager
         dispatchEvent(new Event("microphoneSelected"));
     }
 
     // Event handlers
-    private function onBlockedTabClick(e:MouseEvent):void
-    {
+    private function onBlockedTabClick(e:MouseEvent):void {
         setActiveTab(1);
     }
 
-    private function onAlgorithmTabClick(e:MouseEvent):void
-    {
+    private function onAlgorithmTabClick(e:MouseEvent):void {
         setActiveTab(0);
     }
 
     // Public methods
-    public function setActiveTab(index:int, dispatchEvent:Boolean = true):void
-    {
+    public function setActiveTab(index:int, dispatchEvent:Boolean = true):void {
         if (index < 0 || index >= tabs.length) return;
         if (index == activeTabIndex) return;
 
@@ -276,29 +389,24 @@ public class PCTabs extends Sprite {
         updateTabStyling();
         updateBackgroundVisibility();
 
-        if (dispatchEvent)
-        {
+        if (dispatchEvent) {
             this.dispatchEvent(new Event(TAB_CHANGED));
         }
     }
 
-    public function setTargetContainer(container:Sprite):void
-    {
+    public function setTargetContainer(container:Sprite):void {
         targetContainer = container;
 
         // Add all backgrounds to the container
-        for (var i:int = 0; i < tabBackgrounds.length; i++)
-        {
+        for (var i:int = 0; i < tabBackgrounds.length; i++) {
             container.addChild(tabBackgrounds[i]);
         }
 
         updateBackgroundVisibility();
     }
 
-    private function updateTabStyling():void
-    {
-        for (var i:int = 0; i < tabs.length; i++)
-        {
+    private function updateTabStyling():void {
+        for (var i:int = 0; i < tabs.length; i++) {
             var tab:TabButton = tabs[i];
             var isActive:Boolean = (i == activeTabIndex);
 
@@ -313,102 +421,102 @@ public class PCTabs extends Sprite {
         }
     }
 
-    private function updateBackgroundVisibility():void
-    {
+    private function updateBackgroundVisibility():void {
         if (!targetContainer) return;
 
         // Hide all backgrounds
-        for (var i:int = 0; i < tabBackgrounds.length; i++)
-        {
+        for (var i:int = 0; i < tabBackgrounds.length; i++) {
             tabBackgrounds[i].visible = false;
         }
 
         // Show active background
-        if (activeTabIndex >= 0 && activeTabIndex < tabBackgrounds.length)
-        {
+        if (activeTabIndex >= 0 && activeTabIndex < tabBackgrounds.length) {
             tabBackgrounds[activeTabIndex].visible = true;
         }
     }
 
     // Styling methods
-    public function setPosition(x:Number, y:Number):void
-    {
+    public function setPosition(x:Number, y:Number):void {
         this._x = x;
         this._y = y;
         this.x = x;
         this.y = y;
     }
 
-    public function setTabColors(activeColor:uint, inactiveColor:uint, hoverColor:uint):void
-    {
+    public function setTabColors(activeColor:uint, inactiveColor:uint, hoverColor:uint):void {
         _activeTabColor = activeColor;
         _inactiveTabColor = inactiveColor;
         _hoverTabColor = hoverColor;
         updateTabStyling();
     }
 
-    public function setTextColors(textColor:uint, activeTextColor:uint):void
-    {
+    public function setTextColors(textColor:uint, activeTextColor:uint):void {
         _textColor = textColor;
         _activeTextColor = activeTextColor;
         updateTabStyling();
     }
 
-    public function setBorderColor(color:uint):void
-    {
+    public function setBorderColor(color:uint):void {
         _borderColor = color;
         updateTabStyling();
     }
 
-    public function setCornerRadius(radius:Number):void
-    {
+    public function setCornerRadius(radius:Number):void {
         _cornerRadius = radius;
-        for (var i:int = 0; i < tabs.length; i++)
-        {
+        for (var i:int = 0; i < tabs.length; i++) {
             tabs[i].setCornerRadius(radius);
         }
     }
 
-    public function setTabSize(width:Number, height:Number):void
-    {
+    public function setTabSize(width:Number, height:Number):void {
         _tabWidth = width;
         _tabHeight = height;
 
         // Update tab sizes and positions
-        for (var i:int = 0; i < tabs.length; i++)
-        {
+        for (var i:int = 0; i < tabs.length; i++) {
             tabs[i].setSize(width, height);
             tabs[i].x = i * (width + _tabSpacing);
         }
     }
 
     // Getters
-    public function get activeTab():int { return activeTabIndex; }
-    public function get blockedTabBackground():Sprite { return blockedBackground; }
-    public function get algorithmTabBackground():Sprite { return algorithmBackground; }
-    public function get tabCount():int { return tabs.length; }
+    public function get activeTab():int {
+        return activeTabIndex;
+    }
+
+    public function get blockedTabBackground():Sprite {
+        return blockedBackground;
+    }
+
+    public function get algorithmTabBackground():Sprite {
+        return algorithmBackground;
+    }
+
+    public function get tabCount():int {
+        return tabs.length;
+    }
 
     // Cleanup
-    public function dispose():void
-    {
+    public function dispose():void {
         // Remove event listeners
-        if (blockedTab)
-        {
+        if (blockedTab) {
             blockedTab.removeEventListener(MouseEvent.CLICK, onBlockedTabClick);
             blockedTab.dispose();
         }
 
-        if (algorithmTab)
-        {
+        if (algorithmTab) {
             algorithmTab.removeEventListener(MouseEvent.CLICK, onAlgorithmTabClick);
             algorithmTab.dispose();
         }
+
         for each (var background:Sprite in tabBackgrounds) {
             var micSelector:PCMicSelector = getMicSelectorForBackground(background);
             if (micSelector) {
-                micSelector.dispose(); // ADD THIS LINE
+                micSelector.dispose();
             }
         }
+
+        // Existing cleanup
         var volumeSlider:PCVolumeSlider = backgroundMicSelectors[background + "_volume"];
         if (volumeSlider) {
             volumeSlider.removeEventListener(PCVolumeSlider.VOLUME_CHANGED, onVolumeChanged);
@@ -420,12 +528,39 @@ public class PCTabs extends Sprite {
             pushToTalkButton.removeEventListener(PCPushToTalkButton.PUSH_TO_TALK_TOGGLED, onPushToTalkToggled);
             pushToTalkButton.dispose();
         }
+
+        // ADD NEW PRIORITY CONTROLS CLEANUP:
+        var priorityToggle:PCGenericToggle = backgroundMicSelectors[background + "_priorityToggle"];
+        if (priorityToggle) {
+            priorityToggle.removeEventListener(PCGenericToggle.TOGGLE_CHANGED, onPriorityToggleChanged);
+            priorityToggle.dispose();
+        }
+
+        var autoPriorityButton:PCCycleButton = backgroundMicSelectors[background + "_autoPriority"];
+        if (autoPriorityButton) {
+            autoPriorityButton.removeEventListener(PCCycleButton.STATE_CHANGED, onAutoPriorityChanged);
+            autoPriorityButton.dispose();
+        }
+
+        var nonPrioritySlider:PCVolumeSlider = backgroundMicSelectors[background + "_nonPriorityVolume"];
+        if (nonPrioritySlider) {
+            nonPrioritySlider.removeEventListener(PCVolumeSlider.VOLUME_CHANGED, onNonPriorityVolumeChanged);
+            nonPrioritySlider.dispose();
+        }
+
+        var activationThresholdSlider:PCNumberSlider = backgroundMicSelectors[background + "_activationThreshold"];
+        if (activationThresholdSlider) {
+            activationThresholdSlider.removeEventListener(PCNumberSlider.VALUE_CHANGED, onActivationThresholdChanged);
+            activationThresholdSlider.dispose();
+        }
+
         // Clear collections
         tabs = null;
         tabBackgrounds = null;
         targetContainer = null;
         blockedBackground = null;
         algorithmBackground = null;
+        backgroundMicSelectors = null; // ADD THIS LINE TOO
     }
 }
 }

@@ -7,29 +7,34 @@ import flash.events.Event;
 import flash.text.TextField;
 import flash.text.TextFormat;
 import flash.text.TextFieldAutoSize;
-import flash.geom.Rectangle;
 
-public class PCVolumeSlider extends Sprite {
+public class PCNumberSlider extends Sprite {
     // Events
-    public static const VOLUME_CHANGED:String = "volumeChanged";
+    public static const VALUE_CHANGED:String = "valueChanged";
 
     // Visual components
     private var background:Shape;
     private var track:Shape;
-    private var thumb:Sprite; // Changed to Sprite for buttonMode
+    private var thumb:Sprite;
     private var label:TextField;
     private var valueLabel:TextField;
 
     // Properties
     private var _width:Number;
     private var _height:Number;
-    private var _value:Number = 1.0; // 0.0 to 1.0
+    private var _value:Number = 0.9; // Start at 90% (which = 45.5 slots ≈ 50 slots)
     private var _isDragging:Boolean = false;
-    private var _thumbWidth:Number = 8;   // Reduce from 12 to 8
-    private var _thumbHeight:Number = 10; // Reduce from 16 to 10
+    private var _thumbWidth:Number = 8;
+    private var _thumbHeight:Number = 10;
     private var _trackHeight:Number = 2;
 
-    // Colors - updated to match PCMicSelector
+    // Number range properties
+    private var _minValue:int;
+    private var _maxValue:int;
+    private var _labelText:String;
+    private var _suffix:String;
+
+    // Colors
     private var _backgroundColor:uint = 0x2a2a2a;
     private var _trackColor:uint = 0x404040;
     private var _thumbColor:uint = 0x444444;
@@ -38,9 +43,24 @@ public class PCVolumeSlider extends Sprite {
     private var _borderColor:uint = 0x444444;
     private var _cornerRadius:Number = 4;
 
-    public function PCVolumeSlider(width:Number = 200, height:Number = 25) {
+    public function PCNumberSlider(
+            labelText:String = "Value",
+            minValue:int = 5,
+            maxValue:int = 50,
+            defaultValue:int = 10,
+            suffix:String = "",
+            width:Number = 200,
+            height:Number = 25
+    ) {
+        _labelText = labelText;
+        _minValue = minValue;
+        _maxValue = maxValue;
+        _suffix = suffix;
         _width = width;
         _height = height;
+
+        // Convert defaultValue to 0-1 range
+        _value = (defaultValue - minValue) / (maxValue - minValue);
 
         initialize();
     }
@@ -54,13 +74,13 @@ public class PCVolumeSlider extends Sprite {
         track = new Shape();
         addChild(track);
 
-        // Create thumb (as Sprite for buttonMode)
+        // Create thumb
         thumb = new Sprite();
         addChild(thumb);
 
         // Create label
         label = new TextField();
-        label.text = "Incoming Volume:";
+        label.text = _labelText + ":";
         label.autoSize = TextFieldAutoSize.LEFT;
         label.selectable = false;
         label.mouseEnabled = false;
@@ -73,6 +93,7 @@ public class PCVolumeSlider extends Sprite {
         label.setTextFormat(labelFormat);
 
         addChild(label);
+
         // Create value label
         valueLabel = new TextField();
         valueLabel.textColor = _textColor;
@@ -97,7 +118,7 @@ public class PCVolumeSlider extends Sprite {
     }
 
     private function draw():void {
-        // Draw background exactly like PCMicSelector
+        // Draw background
         var g:Graphics = background.graphics;
         g.clear();
         g.beginFill(_backgroundColor);
@@ -105,15 +126,15 @@ public class PCVolumeSlider extends Sprite {
         g.drawRoundRect(0, 0, _width, _height, _cornerRadius * 2, _cornerRadius * 2);
         g.endFill();
 
-        // Position label on the left (same as PCMicSelector)
+        // Position label
         label.x = 8;
         label.y = 2;
 
-        // Calculate track position - start after label text
-        var labelWidth:Number = 110; // Fixed width for "Incoming Volume:" text
+        // Calculate track position
+        var labelWidth:Number = 110;
         var trackY:Number = _height / 2 - _trackHeight / 2;
-        var trackX:Number = labelWidth + 10; // Start after label + padding
-        var trackWidth:Number = _width - labelWidth - 70; // Leave space for value label
+        var trackX:Number = labelWidth + 10;
+        var trackWidth:Number = _width - labelWidth - 70;
 
         // Draw track
         g = track.graphics;
@@ -126,7 +147,7 @@ public class PCVolumeSlider extends Sprite {
         var thumbX:Number = trackX + (_value * (trackWidth - _thumbWidth));
         var thumbY:Number = _height / 2 - _thumbHeight / 2;
 
-        // Draw thumb exactly like PCMicSelector
+        // Draw thumb
         var thumbColor:uint = _isDragging ? _thumbHoverColor : _thumbColor;
         g = thumb.graphics;
         g.clear();
@@ -138,32 +159,26 @@ public class PCVolumeSlider extends Sprite {
         thumb.x = thumbX;
         thumb.y = thumbY;
 
-        // Position value label on the right
+        // Position value label
         valueLabel.x = _width - 50;
         valueLabel.y = 2;
     }
 
     private function updateValueLabel():void {
+        var actualValue:int = Math.round(_value * (_maxValue - _minValue)) + _minValue;
+
         var valueFormat:TextFormat = new TextFormat();
         valueFormat.font = "Arial";
         valueFormat.size = 11;
+        valueFormat.color = _textColor;
 
-        if (_value == 0) {
-            valueLabel.text = "OFF";
-            valueFormat.color = 0xff6666; // Red when muted
-        } else {
-            var percentage:int = Math.round(_value * 100);
-            valueLabel.text = percentage + "%";
-            valueFormat.color = _textColor;
-        }
-
+        valueLabel.text = actualValue.toString() + _suffix;
         valueLabel.setTextFormat(valueFormat);
     }
 
     private function onThumbMouseDown(e:MouseEvent):void {
         _isDragging = true;
 
-        // Add stage listeners for dragging
         if (stage) {
             stage.addEventListener(MouseEvent.MOUSE_MOVE, onStageMouseMove);
             stage.addEventListener(MouseEvent.MOUSE_UP, onStageMouseUp);
@@ -174,7 +189,6 @@ public class PCVolumeSlider extends Sprite {
 
     private function onStageMouseMove(e:MouseEvent):void {
         if (!_isDragging) return;
-
         updateValueFromMouse();
     }
 
@@ -183,7 +197,6 @@ public class PCVolumeSlider extends Sprite {
 
         _isDragging = false;
 
-        // Remove stage listeners
         if (stage) {
             stage.removeEventListener(MouseEvent.MOUSE_MOVE, onStageMouseMove);
             stage.removeEventListener(MouseEvent.MOUSE_UP, onStageMouseUp);
@@ -211,7 +224,6 @@ public class PCVolumeSlider extends Sprite {
 
     private function onTrackClick(e:MouseEvent):void {
         if (_isDragging) return;
-
         updateValueFromMouse();
     }
 
@@ -220,20 +232,15 @@ public class PCVolumeSlider extends Sprite {
         var trackX:Number = labelWidth + 10;
         var trackWidth:Number = _width - labelWidth - 70;
 
-        // Get mouse position relative to this slider
         var localMouseX:Number = mouseX;
-
-        // Calculate new value
         var newValue:Number = (localMouseX - trackX) / trackWidth;
-        newValue = Math.max(0, Math.min(1, newValue)); // Clamp to 0-1
+        newValue = Math.max(0, Math.min(1, newValue));
 
         if (newValue != _value) {
             _value = newValue;
             draw();
             updateValueLabel();
-
-            // Dispatch event
-            dispatchEvent(new Event(VOLUME_CHANGED));
+            dispatchEvent(new Event(VALUE_CHANGED));
         }
     }
 
@@ -248,35 +255,22 @@ public class PCVolumeSlider extends Sprite {
         updateValueLabel();
     }
 
-    public function get isMuted():Boolean {
-        return _value == 0;
+    public function get actualValue():int {
+        return Math.round(_value * (_maxValue - _minValue)) + _minValue;
     }
 
-    public function setColors(backgroundColor:uint, trackColor:uint, thumbColor:uint, textColor:uint):void {
-        _backgroundColor = backgroundColor;
-        _trackColor = trackColor;
-        _thumbColor = thumbColor;
-        _textColor = textColor;
-
-        label.textColor = textColor;
-        if (!isMuted) valueLabel.textColor = textColor;
-
+    public function set actualValue(val:int):void {
+        var clampedVal:int = Math.max(_minValue, Math.min(_maxValue, val));
+        _value = (clampedVal - _minValue) / (_maxValue - _minValue);
         draw();
+        updateValueLabel();
     }
+
     public function setLabelText(text:String):void {
-        label.text = text;
+        _labelText = text;
+        label.text = text + ":";
     }
 
-    public function setValueText(text:String):void {
-        valueLabel.text = text;
-
-        // Maintain the text formatting
-        var valueFormat:TextFormat = new TextFormat();
-        valueFormat.font = "Arial";
-        valueFormat.size = 11;
-        valueFormat.color = _textColor;
-        valueLabel.setTextFormat(valueFormat);
-    }
     public function dispose():void {
         // Remove event listeners
         thumb.removeEventListener(MouseEvent.MOUSE_DOWN, onThumbMouseDown);
