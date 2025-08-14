@@ -19,6 +19,9 @@ experience in big groups more enjoyable. That system is not tested yet.
 When you have added the stuff from the server to your server, you need to add exceptions in the firewall to 2051,
 both in your provider and your VPS. (This is only needed if your server is on your VPS).
 
+To get this all to work, you need to publish the console1, and put the contents of the publish by your swf, moe.png,
+etc.
+
 //777592 is the navigation code. Basically every (should be every) new code section in files other than the batch
 have the code before so that you can easily find what is needed to implement.
 
@@ -34,3 +37,7 @@ it flickers form disabled to enabled.
 4. When you restart the game in intelljidea the console sometimes does not terminate.
 (1-4 potentially fixed now)
 Easy change:
+
+To do:
+
+Make it fully UDP perhaps. Instaed of the TCP and UDP hybrid.
