@@ -160,7 +160,7 @@ public class PCNumberSlider extends Sprite {
         thumb.y = thumbY;
 
         // Position value label
-        valueLabel.x = _width - 50;
+        //valueLabel.x = _width - 50;
         valueLabel.y = 2;
     }
 
@@ -174,6 +174,9 @@ public class PCNumberSlider extends Sprite {
 
         valueLabel.text = actualValue.toString() + _suffix;
         valueLabel.setTextFormat(valueFormat);
+
+        // Right-align the text with consistent padding from right edge
+        valueLabel.x = _width - valueLabel.textWidth - 8;
     }
 
     private function onThumbMouseDown(e:MouseEvent):void {
@@ -190,6 +193,9 @@ public class PCNumberSlider extends Sprite {
     private function onStageMouseMove(e:MouseEvent):void {
         if (!_isDragging) return;
         updateValueFromMouse();
+        // ADD THESE TWO LINES:
+        updateValueLabel();
+        dispatchEvent(new Event(VALUE_CHANGED));
     }
 
     private function onStageMouseUp(e:MouseEvent):void {
@@ -225,6 +231,8 @@ public class PCNumberSlider extends Sprite {
     private function onTrackClick(e:MouseEvent):void {
         if (_isDragging) return;
         updateValueFromMouse();
+        // ADD THIS LINE:
+        dispatchEvent(new Event(VALUE_CHANGED));
     }
 
     private function updateValueFromMouse():void {

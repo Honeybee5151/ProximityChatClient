@@ -9,4 +9,10 @@ have the code before so that you can easily find what is needed to implement.
 
 Bugs:
 
+1. After leaving the game overnight, voice did not work.
+2. One time it did not send voice, and pressing guild to deactivate fixed it. Could not replicate this.
+3. When you loginto the game, and switch teh guild activation to enable from disable for the first time that session,
+it flickers form disabled to enabled.
+4. When you restart the game in intelljidea the console sometimes does not terminate.
+(potentially fixed)
 Easy change:
