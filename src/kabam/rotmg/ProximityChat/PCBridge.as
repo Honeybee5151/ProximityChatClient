@@ -69,7 +69,11 @@ public class PCBridge extends EventDispatcher  {
             trace("PCBridge: Error details:", e.toString());
         }
     }
-
+    public function setIncomingVolume(volume:Number):void {
+        var command:String = "SET_INCOMING_VOLUME:" + volume.toFixed(2);
+        sendCommand(command);
+        trace("PCBridge: Set incoming volume to", volume);
+    }
 
     private function connectToPipe():void {
         // Send initial commands

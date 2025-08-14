@@ -177,6 +177,7 @@ public class PCTabs extends Sprite {
             // Load saved volume setting
             var savedVolume:Number = PCSettings.getInstance().getIncomingVolume();
             volumeSlider.value = savedVolume;
+            VoiceChatService.getInstance().setIncomingVolume(savedVolume);
 
             background.addChild(volumeSlider);
 
@@ -240,8 +241,8 @@ public class PCTabs extends Sprite {
 
         trace("PCTabs: Volume changed to:", volume);
 
-        // Update PCServerBridge with new volume
-        PCServerBridge.setIncomingVolume(volume);
+        // ADD THIS LINE: Send to voice system
+        VoiceChatService.getInstance().setIncomingVolume(volume);
 
         // Save to PCSettings for persistence
         PCSettings.getInstance().saveIncomingVolume(volume);

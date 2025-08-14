@@ -144,15 +144,38 @@ public class VoiceChatService {
                 if (savedChatEnabled) {
                     startMicrophone();
                     trace("VoiceChatService: Started microphone based on saved state (no UI)");
-                }
 
-                // Saved microphone will be applied when microphones are received
+                    // CRITICAL FIX: Check PTT state and set transmission accordingly
+                    var pttEnabled:Boolean = settings.getPushToTalkEnabled();
+                    if (pttEnabled) {
+                        // PTT is enabled - start with transmission DISABLED
+                        audioBridge.sendCommand("DISABLE_AUDIO_TRANSMISSION");
+                        trace("VoiceChatService: PTT enabled - transmission disabled until key pressed");
+                    } else {
+                        // Always-on mode - enable transmission
+                        audioBridge.sendCommand("ENABLE_AUDIO_TRANSMISSION");
+                        trace("VoiceChatService: Always-on mode - transmission enabled");
+                    }
+                }
             }
         }
 
+
         isInitialized = true;
     }
-    // NEW: Settings loaded handler
+    public function setIncomingVolume(volume:Number):void {
+        if (audioBridge) {
+            audioBridge.setIncomingVolume(volume);
+            trace("VoiceChatService: Set incoming volume to", volume);
+        }
+
+        // Save to settings
+        if (settings) {
+            settings.saveIncomingVolume(volume);
+        }
+    }
+
+
     private function onSettingsLoaded(e:Event):void {
         trace("VoiceChatService: Settings loaded, checking for saved preferences");
 
