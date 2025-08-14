@@ -1,18 +1,36 @@
 Hello it is me Shangapallia again. Here we have a proximity chat for rotmg-pservers created by Claude.
 So for the main batch of files the navigation is src -> kabam -> rotmg -> ProximityChat.
 
+Content: An ingame UI, which is initialized in PCManager. Its parts are, PCCycleButton, PCGenericToggle, PCMask,
+PCMicSelector, PCNumberSlider, PCPushToTalkButton, PCSlider, PCTabs, PCToggle, PCVisualiser, PCVolumeSlider. Although,
+most of the UI stuff is initialized in PCTabs which is then initialized in PCManger, thereafter in GameSprite.
+
+The proximity-chat comes with an authentication-system, the client receives from the server in gameserverconnections the
+code from the server at login. It is generated at account generation, but a system in place for existing accounts exists
+so you do not need to worry about that. After receiving the code, it is transferred from PCBridge (the link between the
+c# program and the client) to the c# program. It is then used as like a check between the server and and c# program. The
+system was accidentally tested when I removed the receiver in gameserverconnection and the VoiceHandler (the main
+receiver and sender in the server) did not receive the voice bytes. So spoofing is countered.
+
+The system comes with push-to-talk which is tested and works. And a incoming-sound volume slider which works. And a mic
+selector which works. Furthermore, there is a prioritize system, which is customizable, and is supposed to make the
+experience in big groups more enjoyable. That system is not tested yet.
+
 When you have added the stuff from the server to your server, you need to add exceptions in the firewall to 2051,
-both in your provider and your VPS.
+both in your provider and your VPS. (This is only needed if your server is on your VPS).
 
 //777592 is the navigation code. Basically every (should be every) new code section in files other than the batch
 have the code before so that you can easily find what is needed to implement.
+
+An important implementation (well all parts are quite needed), is that in the server side -> connectionlistener is what
+activates the 2051 port.
 
 Bugs:
 
 1. After leaving the game overnight, voice did not work.
 2. One time it did not send voice, and pressing guild to deactivate fixed it. Could not replicate this.
-3. When you loginto the game, and switch teh guild activation to enable from disable for the first time that session,
+3. When you log into the game, and switch teh guild activation to enable from disable for the first time that session,
 it flickers form disabled to enabled.
 4. When you restart the game in intelljidea the console sometimes does not terminate.
-(potentially fixed)
+(1-4 potentially fixed now)
 Easy change:
