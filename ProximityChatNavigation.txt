@@ -39,7 +39,8 @@ Bugs:
 3. When you log into the game, and switch teh guild activation to enable from disable for the first time that session,
 it flickers form disabled to enabled.
 4. When you restart the game in intelljidea the console sometimes does not terminate.
-5. When you package it in powershell, and play the game and exit the music continues to play. I cannot find it in task-
+5. At generation of authentication, you need to go into a new instance for vc to work.
+6. When you package it in powershell, and play the game and exit the music continues to play. I cannot find it in task-
 manager, and need a computer-restart. Not sure if this happened for the other tester.
 (1-3 potentially fixed)
 
