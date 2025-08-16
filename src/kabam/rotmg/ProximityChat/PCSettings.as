@@ -357,116 +357,23 @@ public class PCSettings extends EventDispatcher
 
         return null;
     }
-    public function savePrioritySystemEnabled(enabled:Boolean):void {
-        if (!_sharedObject) return;
-        try {
-            _sharedObject.data[PRIORITY_SYSTEM_ENABLED] = enabled;
-            _sharedObject.flush();
-            trace("PCSettings: Saved priority system enabled:", enabled);
-            dispatchEvent(new Event(SETTINGS_SAVED));
-        } catch (error:Error) {
-            trace("PCSettings: Failed to save priority system enabled:", error.message);
-        }
-    }
 
-    public function getPrioritySystemEnabled():Boolean {
-        if (!_sharedObject || _sharedObject.data[PRIORITY_SYSTEM_ENABLED] === undefined) {
-            return false;
-        }
-        return _sharedObject.data[PRIORITY_SYSTEM_ENABLED] as Boolean;
-    }
 
-    public function savePriorityActivationThreshold(threshold:int):void {
-        if (!_sharedObject) return;
-        try {
-            _sharedObject.data[PRIORITY_ACTIVATION_THRESHOLD] = threshold;
-            _sharedObject.flush();
-            dispatchEvent(new Event(SETTINGS_SAVED));
-        } catch (error:Error) {
-            trace("PCSettings: Failed to save threshold:", error.message);
-        }
-    }
 
-    public function getPriorityActivationThreshold():int {
-        if (!_sharedObject || _sharedObject.data[PRIORITY_ACTIVATION_THRESHOLD] === undefined) {
-            return 8;
-        }
-        return _sharedObject.data[PRIORITY_ACTIVATION_THRESHOLD] as int;
-    }
 
-    public function saveNonPriorityVolume(volume:Number):void {
-        if (!_sharedObject) return;
-        try {
-            _sharedObject.data[NON_PRIORITY_VOLUME] = volume;
-            _sharedObject.flush();
-            dispatchEvent(new Event(SETTINGS_SAVED));
-        } catch (error:Error) {
-            trace("PCSettings: Failed to save non-priority volume:", error.message);
-        }
-    }
-    public function saveAutoPriorityGuild(enabled:Boolean):void {
-        if (!_sharedObject) return;
-        try {
-            _sharedObject.data[AUTO_PRIORITY_GUILD] = enabled;
-            _sharedObject.flush();
-            trace("PCSettings: Saved auto priority guild:", enabled);
-            dispatchEvent(new Event(SETTINGS_SAVED));
-        } catch (error:Error) {
-            trace("PCSettings: Failed to save auto priority guild:", error.message);
-        }
-    }
 
-    public function getAutoPriorityGuild():Boolean {
-        if (!_sharedObject || _sharedObject.data[AUTO_PRIORITY_GUILD] === undefined) {
-            return true; // Default to enabled
-        }
-        return _sharedObject.data[AUTO_PRIORITY_GUILD] as Boolean;
-    }
 
-    public function saveAutoPriorityLocked(enabled:Boolean):void {
-        if (!_sharedObject) return;
-        try {
-            _sharedObject.data[AUTO_PRIORITY_LOCKED] = enabled;
-            _sharedObject.flush();
-            trace("PCSettings: Saved auto priority locked:", enabled);
-            dispatchEvent(new Event(SETTINGS_SAVED));
-        } catch (error:Error) {
-            trace("PCSettings: Failed to save auto priority locked:", error.message);
-        }
-    }
 
-    public function getAutoPriorityLocked():Boolean {
-        if (!_sharedObject || _sharedObject.data[AUTO_PRIORITY_LOCKED] === undefined) {
-            return true; // Default to enabled
-        }
-        return _sharedObject.data[AUTO_PRIORITY_LOCKED] as Boolean;
-    }
 
-    public function saveMaxPrioritySlots(slots:int):void {
-        if (!_sharedObject) return;
-        try {
-            _sharedObject.data[MAX_PRIORITY_SLOTS] = slots;
-            _sharedObject.flush();
-            trace("PCSettings: Saved max priority slots:", slots);
-            dispatchEvent(new Event(SETTINGS_SAVED));
-        } catch (error:Error) {
-            trace("PCSettings: Failed to save max priority slots:", error.message);
-        }
-    }
 
-    public function getMaxPrioritySlots():int {
-        if (!_sharedObject || _sharedObject.data[MAX_PRIORITY_SLOTS] === undefined) {
-            return 10; // Default to 10 slots
-        }
-        return _sharedObject.data[MAX_PRIORITY_SLOTS] as int;
-    }
 
-    public function getNonPriorityVolume():Number {
-        if (!_sharedObject || _sharedObject.data[NON_PRIORITY_VOLUME] === undefined) {
-            return 0.2;
-        }
-        return _sharedObject.data[NON_PRIORITY_VOLUME] as Number;
-    }
+
+
+
+
+
+
+
     /**
      * Get all settings as an object (useful for debugging)
      */

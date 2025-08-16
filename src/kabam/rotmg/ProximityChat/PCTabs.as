@@ -106,7 +106,7 @@ public class PCTabs extends Sprite {
         setActiveTab(0, false);
 
         loadSavedPushToTalkState();
-        loadSavedPrioritySettings();
+
     }
 
     private function createTabs():void {
@@ -119,7 +119,7 @@ public class PCTabs extends Sprite {
         tabs.push(algorithmTab);
 
         // Create "Blocked" tab SECOND
-        blockedTab = new TabButton("Priority", _tabWidth, _tabHeight);
+        blockedTab = new TabButton("Info", _tabWidth, _tabHeight);
         blockedTab.x = _tabWidth + _tabSpacing; // Move to second position
         blockedTab.y = 0;
         blockedTab.addEventListener(MouseEvent.CLICK, onBlockedTabClick);
@@ -138,7 +138,7 @@ public class PCTabs extends Sprite {
 
         // Create background for "Blocked" tab SECOND (index 1)
         blockedBackground = new Sprite();
-        createBackgroundContent(blockedBackground, 0x1a1a2a, "Choose how, when and who has priority in groups");
+        createBackgroundContent(blockedBackground, 0x1a1a2a, "Here is info about the system");
         tabBackgrounds.push(blockedBackground);
     }
 
@@ -154,7 +154,16 @@ public class PCTabs extends Sprite {
         label.x = 10;
         label.y = 10;
         background.addChild(label);
+        if (labelText == "Here is info about the system") {
+            // Use the new PCSystemInfo class
+            var systemInfo:PCSystemInfo = new PCSystemInfo(280, 180);
+            systemInfo.x = 10;
+            systemInfo.y = 10;
+            background.addChild(systemInfo);
 
+            // Store reference for cleanup
+            backgroundMicSelectors[background + "_systemInfo"] = systemInfo;
+        }
         // Add microphone selector to the "Adjust" tab content
         if (labelText == "Adjust stuff") {
             var micSelector:PCMicSelector = new PCMicSelector(280, 25);
@@ -196,56 +205,6 @@ public class PCTabs extends Sprite {
 
             // Add event listener for push-to-talk changes
             pushToTalkButton.addEventListener(PCPushToTalkButton.PUSH_TO_TALK_TOGGLED, onPushToTalkToggled);
-        } else if (labelText == "Choose how, when and who has priority in groups") {
-            // Priority System Enable/Disable Toggle
-            var priorityToggle:PCGenericToggle = new PCGenericToggle("Priority System", "Enabled", "Disabled", 280, 25);
-            priorityToggle.x = 10;
-            priorityToggle.y = 40;
-            background.addChild(priorityToggle);
-            backgroundMicSelectors[background + "_priorityToggle"] = priorityToggle;
-            priorityToggle.addEventListener(PCGenericToggle.TOGGLE_CHANGED, onPriorityToggleChanged);
-
-            // Auto Priority Cycle Button (Guild/Locked/Both)
-            var autoPriorityButton:PCCycleButton = new PCCycleButton("Auto Priority", 280, 25);
-            autoPriorityButton.x = 10;
-            autoPriorityButton.y = 75;
-            background.addChild(autoPriorityButton);
-            backgroundMicSelectors[background + "_autoPriority"] = autoPriorityButton;
-            autoPriorityButton.addEventListener(PCCycleButton.STATE_CHANGED, onAutoPriorityChanged);
-
-            // Non-Priority Volume Slider
-            var nonPrioritySlider:PCVolumeSlider = new PCVolumeSlider(280, 25);
-            nonPrioritySlider.x = 10;
-            nonPrioritySlider.y = 110;
-            nonPrioritySlider.setLabelText("Non-Priority Volume:");
-            background.addChild(nonPrioritySlider);
-            backgroundMicSelectors[background + "_nonPriorityVolume"] = nonPrioritySlider;
-            nonPrioritySlider.addEventListener(PCVolumeSlider.VOLUME_CHANGED, onNonPriorityVolumeChanged);
-
-            // Max Priority Slots Slider (5-50 range)
-            var maxSlotsSlider:PCVolumeSlider = new PCVolumeSlider(280, 25);
-            maxSlotsSlider.x = 10;
-            maxSlotsSlider.y = 145;
-            maxSlotsSlider.setLabelText("Max Priority Slots:");
-            background.addChild(maxSlotsSlider);
-            backgroundMicSelectors[background + "_maxSlots"] = maxSlotsSlider;
-            maxSlotsSlider.addEventListener(PCVolumeSlider.VOLUME_CHANGED, onMaxSlotsChanged);
-
-// With this:
-            var activationThresholdSlider:PCNumberSlider = new PCNumberSlider(
-                    "Activate When", // label
-                    3,               // min value (activate when 3+ people nearby)
-                    30,              // max value (activate when 30+ people nearby)
-                    8,               // default value (activate when 8+ people nearby)
-                    " people",       // suffix
-                    280,             // width
-                    25               // height
-            );
-            activationThresholdSlider.x = 10;
-            activationThresholdSlider.y = 145;
-            background.addChild(activationThresholdSlider);
-            backgroundMicSelectors[background + "_activationThreshold"] = activationThresholdSlider;
-            activationThresholdSlider.addEventListener(PCNumberSlider.VALUE_CHANGED, onActivationThresholdChanged);
 
         }
     }
@@ -253,79 +212,11 @@ public class PCTabs extends Sprite {
 
 
     // Add this method to PCTabs.as
-    private function loadSavedPrioritySettings():void {
-        var settings:PCSettings = PCSettings.getInstance();
 
-        // Load and apply saved priority toggle
-        var priorityToggle:PCGenericToggle = backgroundMicSelectors[blockedBackground + "_priorityToggle"];
-        if (priorityToggle) {
-            priorityToggle.isEnabled = settings.getPrioritySystemEnabled();
-        }
 
-        // Load and apply saved activation threshold
-        var thresholdSlider:PCNumberSlider = backgroundMicSelectors[blockedBackground + "_activationThreshold"];
-        if (thresholdSlider) {
-            thresholdSlider.actualValue = settings.getPriorityActivationThreshold();
-        }
 
-        // Load and apply saved non-priority volume
-        var nonPrioritySlider:PCVolumeSlider = backgroundMicSelectors[blockedBackground + "_nonPriorityVolume"];
-        if (nonPrioritySlider) {
-            nonPrioritySlider.value = settings.getNonPriorityVolume();
-        }
 
-        trace("PCTabs: Loaded saved priority settings");
-    }
-    private function onPriorityToggleChanged(e:Event):void {
-        var toggle:PCGenericToggle = e.target as PCGenericToggle;
-        var enabled:Boolean = toggle.isEnabled;
 
-        trace("PCTabs: Priority system toggled to:", enabled);
-
-        // Use VoiceChatService instead of ExternalInterface
-        VoiceChatService.getInstance().setPrioritySystemEnabled(enabled);
-    }
-
-    private function onActivationThresholdChanged(e:Event):void {
-        var slider:PCNumberSlider = e.target as PCNumberSlider;
-        var threshold:int = slider.actualValue;
-
-        trace("PCTabs: Priority system will activate when", threshold, "people are nearby");
-
-        // Use VoiceChatService
-        VoiceChatService.getInstance().setPriorityActivationThreshold(threshold);
-    }
-
-    private function onAutoPriorityChanged(e:Event):void {
-        var button:PCCycleButton = e.target as PCCycleButton;
-
-        trace("PCTabs: Auto priority changed to:", button.currentStateText);
-
-        // Use VoiceChatService
-        VoiceChatService.getInstance().setAutoPriorityGuild(button.isGuildMode);
-        VoiceChatService.getInstance().setAutoPriorityLocked(button.isLockedMode);
-    }
-
-    private function onNonPriorityVolumeChanged(e:Event):void {
-        var slider:PCVolumeSlider = e.target as PCVolumeSlider;
-        var volume:Number = slider.value;
-
-        trace("PCTabs: Non-priority volume changed to:", volume);
-
-        // Use VoiceChatService
-        VoiceChatService.getInstance().setNonPriorityVolume(volume);
-    }
-
-    private function onMaxSlotsChanged(e:Event):void {
-        var slider:PCVolumeSlider = e.target as PCVolumeSlider;
-        var slots:int = Math.round(slider.value * 45) + 5;
-
-        slider.setValueText(slots.toString() + " slots");
-        trace("PCTabs: Max priority slots changed to:", slots);
-
-        // Use VoiceChatService
-        VoiceChatService.getInstance().setMaxPrioritySlots(slots);
-    }
 
      // VoiceChatService.getInstance().setAutoPriorityMode(button.currentState);
 
@@ -555,29 +446,7 @@ public class PCTabs extends Sprite {
         }
 
         // ADD NEW PRIORITY CONTROLS CLEANUP:
-        var priorityToggle:PCGenericToggle = backgroundMicSelectors[background + "_priorityToggle"];
-        if (priorityToggle) {
-            priorityToggle.removeEventListener(PCGenericToggle.TOGGLE_CHANGED, onPriorityToggleChanged);
-            priorityToggle.dispose();
-        }
 
-        var autoPriorityButton:PCCycleButton = backgroundMicSelectors[background + "_autoPriority"];
-        if (autoPriorityButton) {
-            autoPriorityButton.removeEventListener(PCCycleButton.STATE_CHANGED, onAutoPriorityChanged);
-            autoPriorityButton.dispose();
-        }
-
-        var nonPrioritySlider:PCVolumeSlider = backgroundMicSelectors[background + "_nonPriorityVolume"];
-        if (nonPrioritySlider) {
-            nonPrioritySlider.removeEventListener(PCVolumeSlider.VOLUME_CHANGED, onNonPriorityVolumeChanged);
-            nonPrioritySlider.dispose();
-        }
-
-        var activationThresholdSlider:PCNumberSlider = backgroundMicSelectors[background + "_activationThreshold"];
-        if (activationThresholdSlider) {
-            activationThresholdSlider.removeEventListener(PCNumberSlider.VALUE_CHANGED, onActivationThresholdChanged);
-            activationThresholdSlider.dispose();
-        }
 
         // Clear collections
         tabs = null;
