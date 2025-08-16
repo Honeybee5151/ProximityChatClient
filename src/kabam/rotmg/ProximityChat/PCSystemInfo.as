@@ -5,137 +5,117 @@ import flash.text.TextFormat;
 import flash.text.TextFieldAutoSize;
 
 public class PCSystemInfo extends Sprite {
-    private var infoTextField:TextField;
+    private var textFields:Vector.<TextField>;
     private var _width:Number;
     private var _height:Number;
 
     // Visual properties
     private var _textColor:uint = 0xcccccc;
-    private var _backgroundColor:uint = 0x1a1a2a;
-    private var _borderColor:uint = 0x666666;
 
-    public function PCSystemInfo(width:Number = 280, height:Number = 200) {
+    public function PCSystemInfo(width:Number = 350, height:Number = 2000) {
         _width = width;
         _height = height;
         initialize();
     }
 
     private function initialize():void {
-        // Draw background
-        drawBackground();
-
-        // Create and configure text field
-        createTextField();
-
-        // Set the info content
-        setInfoText();
+        // Create multiple text fields
+        createTextFields();
     }
 
-    private function drawBackground():void {
-        graphics.clear();
-        graphics.beginFill(_backgroundColor, 0.8);
-        graphics.lineStyle(1, _borderColor, 0.5);
-        graphics.drawRoundRect(0, 0, _width, _height, 8, 8);
-        graphics.endFill();
-    }
+    private function createTextFields():void {
+        textFields = new Vector.<TextField>();
 
-    private function createTextField():void {
-        infoTextField = new TextField();
-        infoTextField.x = 10;
-        infoTextField.y = 10;
-        infoTextField.width = _width - 20; // Account for padding
-        infoTextField.height = _height - 20;
-        infoTextField.multiline = true;
-        infoTextField.wordWrap = true;
-        infoTextField.selectable = true;
-        infoTextField.textColor = _textColor;
+        // Split content into manageable sections
+        var sections:Array = [
+            "This system is opensource, made by Claude, and prompted by Shangapallia\n\nIf it makes you lag, turn off output by the top on/off button and sliding the slider to off\n\nRange is 15 tiles, and maximum input is from 4 people\n\nIn dungeons people will be grouped into groups of 4\n\nIf you would like to contribute to the system: https://github.com/Honeybee5151"
 
-        // Set text formatting
-        var format:TextFormat = new TextFormat();
-        format.font = "Arial";
-        format.size = 12;
-        format.leading = 2; // Line spacing
-        infoTextField.defaultTextFormat = format;
+            //"TECHNICAL SPECIFICATIONS:\n• Uses raw PCM audio for zero CPU encoding overhead\n• TCP connection ensures reliable audio transmission\n• Server-side proximity filtering and routing\n• Automatic reconnection on network interruptions\n• 44.1kHz mono audio at 16-bit depth\n• 100ms audio chunks for low latency",
 
-        addChild(infoTextField);
-    }
+            //"GAMEPLAY MODES:\n• Realm Mode: Dynamic proximity-based groups\n  - Players hear others within 15 tile range\n  - Groups form and dissolve naturally as players move\n  - Encourages spontaneous social interaction\n• Dungeon Mode: Fixed coordination groups\n  - Stable groups formed when entering dungeons\n  - Optimized for tactical coordination\n  - Groups persist throughout dungeon completion\n• Automatic mode switching based on world location",
 
-    private function setInfoText():void {
-        var infoText:String = "PROXIMITY CHAT SYSTEM\n" +
-                "====================\n\n" +
+            //"BANDWIDTH AND PERFORMANCE:\n• Approximately 440KB/sec with 6 people talking nearby\n• Bandwidth scales with local player density\n• Optimized for stable performance on modest hardware\n• 6-person audio cap prevents exponential bandwidth growth\n• Server handles routing to reduce client processing load",
 
-                "BASIC FEATURES:\n" +
-                "• Voice chat works within 15 tiles\n" +
-                "• Maximum 6 people heard simultaneously\n" +
-                "• Distance affects volume (closer = louder)\n" +
-                "• Push-to-talk reduces background noise\n" +
-                "• Adjustable incoming volume\n\n" +
-                "• At minimum volume the receiving end is off\n\n"
+            //"AUDIO QUALITY FEATURES:\n• Distance-based volume attenuation\n• Noise gate to filter quiet background sounds\n• Microphone gain control and audio level monitoring\n• Real-time audio level visualization\n• Support for multiple audio devices",
 
+            //"SOCIAL FEATURES:\n• Respects existing ignore list settings\n• No voice data sent to ignored players\n• Seamless integration with game social systems\n• Encourages meeting new players organically",
 
-                "TECHNICAL INFO:\n" +
-                "• Uses raw PCM audio for zero CPU overhead\n" +
-                "• TCP connection for reliable transmission\n" +
-                "• Server-side proximity filtering\n" +
-                "• Automatic reconnection on network issues\n\n" +
+            //"SYSTEM REQUIREMENTS:\n• Any microphone (built-in or external)\n• Broadband internet connection (1+ Mbps recommended)\n• Windows audio system compatibility\n• Minimal additional CPU/memory overhead",
 
-                "GAMEPLAY MODES:\n" +
-                "• Realm: Dynamic proximity-based groups\n" +
-                "• Dungeons: Fixed coordination groups\n" +
-                "• Automatic mode switching by location\n\n" +
+            //"PURPOSE AND DESIGN PHILOSOPHY:\nThis system encourages spontaneous interaction between\nplayers without the complexity of setting up external\nvoice chat channels. It's designed to facilitate casual\ncoordination, help new players get guidance, and create\norganic social moments that enhance the gaming experience.\nUnlike Discord or other platforms, proximity chat works\nautomatically based on your location in the game world,\nmaking it perfect for meeting new people and coordinating\nwith nearby players without any setup required.",
 
-                "BANDWIDTH USAGE:\n" +
-                "• ~440KB/sec with 6 people nearby\n" +
-                "• Scales with player density\n" +
-                "• Optimized for stable performance\n\n" +
+            //"PERFORMANCE OPTIMIZATION:\nThe system is engineered to work reliably with modest\nhardware specifications while maintaining good audio\nquality for effective communication during gameplay.\nRaw PCM audio was chosen over compressed formats to\neliminate CPU encoding overhead that could impact\ngame performance, prioritizing stable frame rates\nover bandwidth efficiency.\n\nThis approach ensures consistent performance across\ndifferent hardware configurations while providing\nthe low-latency communication essential for\nreal-time gaming coordination."
+        ];
 
-                "This system encourages spontaneous interaction\n" +
-                "between players without the complexity of\n" +
-                "setting up Discord channels.";
+        var currentY:Number = 25;
 
-        infoTextField.text = infoText;
+        for (var i:int = 0; i < sections.length; i++) {
+            var textField:TextField = new TextField();
+            textField.x = 5;
+            textField.y = currentY;
+            textField.width = _width - 10;
+            textField.multiline = true;
+            textField.wordWrap = true;
+            textField.selectable = true;
+            textField.textColor = _textColor;
+            textField.background = false;
+            textField.border = false;
+            textField.autoSize = TextFieldAutoSize.LEFT;
+
+            // Set text formatting
+            var format:TextFormat = new TextFormat();
+            format.font = "Arial";
+            format.size = 11;
+            format.leading = 3;
+            textField.defaultTextFormat = format;
+
+            textField.text = sections[i];
+
+            addChild(textField);
+            textFields.push(textField);
+
+            currentY += textField.textHeight + 20; // Add spacing between sections
+        }
     }
 
     // Public methods for customization
     public function setTextColor(color:uint):void {
         _textColor = color;
-        if (infoTextField) {
-            infoTextField.textColor = color;
+        if (textFields) {
+            for each (var field:TextField in textFields) {
+                field.textColor = color;
+            }
         }
     }
 
-    public function setBackgroundColor(color:uint):void {
-        _backgroundColor = color;
-        drawBackground();
-    }
-
-    public function setBorderColor(color:uint):void {
-        _borderColor = color;
-        drawBackground();
-    }
-
     public function updateInfoText(newText:String):void {
-        if (infoTextField) {
-            infoTextField.text = newText;
+        // For updating, you could rebuild the sections or modify specific ones
+        // This is a simplified version that replaces the first field
+        if (textFields && textFields.length > 0) {
+            textFields[0].text = newText;
         }
     }
 
     public function setSize(width:Number, height:Number):void {
         _width = width;
         _height = height;
-        drawBackground();
 
-        if (infoTextField) {
-            infoTextField.width = width - 20;
-            infoTextField.height = height - 20;
+        if (textFields) {
+            for each (var field:TextField in textFields) {
+                field.width = width - 10;
+            }
         }
     }
 
     public function dispose():void {
-        if (infoTextField && infoTextField.parent) {
-            removeChild(infoTextField);
+        if (textFields) {
+            for each (var field:TextField in textFields) {
+                if (field && field.parent) {
+                    removeChild(field);
+                }
+            }
+            textFields = null;
         }
-        infoTextField = null;
     }
 }
 }

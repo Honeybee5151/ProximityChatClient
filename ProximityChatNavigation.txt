@@ -1,10 +1,20 @@
 Hello it is me Shangapallia again. Here we have a proximity chat for rotmg-pservers created by Claude.
 So for the main batch of files the navigation is src -> kabam -> rotmg -> ProximityChat.
 
+Proximity chat: Enabled only in dungeons. Groups people in 4, if someone is left alone, a group can become 5.
+The system works so that when the first person enters the dungeon he creates a voice channel, and the next people
+to come join that voice channel. Then the fifth person creates a new one. This continues until the portal has closed,
+if a person is left alone at that point, they will join the latest group which will then have 5 people.
+
+This system eliminates the chaos and bandwidth problem of dense areas. The other solution would be a priority system
+in the realm where you hear people who are locked/guild. That system though, sort of diminishes the purpose of
+proximity chat: to make random people talk to each other.
+This current system creates an incentive to do dungeons,  and not stick to realm farming. For those social people who
+want to do dungeons and talk to random people.
+
 Content: An ingame UI, which is initialized in PCManager. Its parts are, PCCycleButton, PCGenericToggle, PCMask,
 PCMicSelector, PCNumberSlider, PCPushToTalkButton, PCSlider, PCTabs, PCToggle, PCVisualiser, PCVolumeSlider. Although,
 most of the UI stuff is initialized in PCTabs which is then initialized in PCManger, thereafter in GameSprite.
-
 
 The proximity-chat comes with an authentication-system, the client receives from the server in gameserverconnections the
 code from the server at login. It is generated at account generation, but a system in place for existing accounts exists
