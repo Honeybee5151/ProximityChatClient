@@ -56,8 +56,21 @@ manager, and need a computer-restart. Not sure if this happened for the other te
 
 Easy change:
 
-If port 2051 is already in use go to this "var voiceListener = new TcpListener(IPAddress.Any, 2051);" on the server
+1. If port 2051 is already in use go to this "var voiceListener = new TcpListener(IPAddress.Any, 2051);" on the server
 and change it to what you want.
+2. To make it Opus based instead of raw PCM, both have upsides (Opus takes cpu usage for clients, to encode to that, and
+should make people not hear keyboard and mouthbreathing that much, while PCM is a little better quality but requires
+10-20 times for bandwidth usage from the server side). "var voiceConfig = new VoiceHandler.VoiceConfig" edit that and
+the code below in the server which is tied to it, and replace it with:
+"var voiceConfig = new VoiceHandler.VoiceConfig
+{
+    Codec = VoiceHandler.AudioCodec.Opus,
+    OpusBitrate = 24000,
+    SampleRate = 48000,
+    EnableVolumeAttenuation = true
+};
+voiceHandler = new VoiceHandler(gameServer, voiceConfig);"
+
 
 To do:
 
